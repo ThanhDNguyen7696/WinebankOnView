@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WineBank Member Dashboard</title>
+  <link rel="stylesheet" href="./css/global.css" />
+  <link rel="stylesheet" href="./css/dashboard.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <a class="site-logo" href="./index.html">WINEBANK</a>
+  <nav class="site-nav" aria-label="Main navigation">
+    <a href="./index.html">Home</a>
+    <a href="#">Dining</a>
+    <a href="#">Membership</a>
+    <a href="#">Events</a>
+    <a href="#">Contact</a>
+    <a class="nav-cta" href="./login.html">Member Login</a>
+  </nav>
+</header>
+
+  <main class="dashboard">
+    <div class="dashboard-inner">
+      <div class="dashboard-heading">
+        <h1>Welcome, <span id="memberName">Member</span></h1>
+        <p>Your account overview and membership details.</p>
+      </div>
+
+      <div class="dashboard-grid">
+        <section class="dashboard-card">
+          <h2>Membership</h2>
+          <p class="membership-badge" id="membershipStatus">Pending</p>
+          <div class="detail-list">
+            <div class="detail-row">
+              <span>Status</span>
+              <span>Awaiting staff confirmation</span>
+            </div>
+            <div class="detail-row">
+              <span>Expiry date</span>
+              <span>Not available</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-card">
+          <h2>Personal details</h2>
+          <div class="detail-list">
+            <div class="detail-row">
+              <span>Email</span>
+              <span id="memberEmail">—</span>
+            </div>
+            <div class="detail-row">
+              <span>Phone</span>
+              <span id="memberPhone">—</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="dashboard-card">
+          <h2>Member benefits</h2>
+          <p>Event invitations, cellar news, selected offers and future membership features can be added here.</p>
+        </section>
+
+        <section class="dashboard-card">
+          <h2>Account actions</h2>
+          <button class="secondary-button" id="logoutButton">Log out</button>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="./js/dashboard.js"></script>
+</body>
+</html>
