@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WineBank Member Login</title>
+  <link rel="stylesheet" href="./css/global.css" />
+  <link rel="stylesheet" href="./css/auth.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <a class="site-logo" href="./index.html">WINEBANK</a>
+  <nav class="site-nav" aria-label="Main navigation">
+    <a href="./index.html">Home</a>
+    <a href="#">Dining</a>
+    <a href="#">Membership</a>
+    <a href="#">Events</a>
+    <a href="#">Contact</a>
+    <a class="nav-cta" href="./login.html">Member Login</a>
+  </nav>
+</header>
+
+  <main class="auth-page">
+    <section class="auth-visual">
+      <div class="auth-visual-content">
+        <p class="auth-eyebrow">Membership · Dining · Cellar</p>
+        <h1>Your place at the table.</h1>
+        <p class="auth-visual-copy">
+          Sign in to manage your details, view your membership status and receive invitations to WineBank experiences.
+        </p>
+      </div>
+    </section>
+
+    <section class="auth-panel">
+      <div class="auth-form-wrap">
+        <p class="auth-switch">New to WineBank? <a href="./signup.html">Create an account</a></p>
+        <h2 class="auth-heading">Welcome back</h2>
+        <p class="auth-intro">Access your WineBank account and membership details.</p>
+
+        <form id="loginForm" novalidate>
+          <div class="field">
+            <label for="loginEmail">Email address</label>
+            <input type="email" id="loginEmail" autocomplete="email" />
+            <div class="error" id="loginEmailError"></div>
+          </div>
+
+          <div class="field">
+            <label for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" autocomplete="current-password" />
+            <button class="password-toggle" type="button" data-password-toggle="loginPassword">Show</button>
+            <div class="error" id="loginPasswordError"></div>
+          </div>
+
+          <div class="auth-actions">
+            <label class="check-row" style="margin:0">
+              <input type="checkbox" id="rememberMe" />
+              <span>Remember me</span>
+            </label>
+            <button type="button" class="link-button" id="forgotPassword">Forgot password?</button>
+          </div>
+
+          <button class="primary-button auth-submit" type="submit">Log in</button>
+          <div class="status" id="loginStatus" aria-live="polite"></div>
+        </form>
+
+        <p class="auth-support">
+          Not yet a WineBank member? You may still create an online account.
+          Membership activation can be confirmed separately by WineBank staff.
+        </p>
+      </div>
+    </section>
+  </main>
+  <script type="module" src="./js/login.js"></script>
+</body>
+</html>
