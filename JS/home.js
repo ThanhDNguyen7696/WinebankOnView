@@ -40,9 +40,6 @@ function showToast(message) { toast.textContent = message; toast.classList.add('
 if (!hasVerifiedAge()) $('#ageModal').classList.add('show');
 $('#confirmAge').addEventListener('click', () => { verifyAge(); $('#ageModal').classList.remove('show'); });
 $('#denyAge').addEventListener('click', () => { $('#ageModal .modal-card').innerHTML = '<h2>Thanks for being honest.</h2><p>This website is intended for adults aged 18 and over.</p>'; });
-$('.menu-toggle').addEventListener('click', e => { const nav = $('.site-nav'); nav.classList.toggle('open'); e.currentTarget.setAttribute('aria-expanded', nav.classList.contains('open')); });
-$('.site-nav').addEventListener('click', e => { if (e.target.matches('a')) $('.site-nav').classList.remove('open'); });
-
 document.addEventListener('click', e => {
   const add = e.target.closest('[data-add]'); if (add) addToCart(Number(add.dataset.add));
   const inc = e.target.closest('[data-inc]'); if (inc) { cart.find(i => i.id === Number(inc.dataset.inc)).qty++; saveCart(); }

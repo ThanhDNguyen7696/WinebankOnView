@@ -2,12 +2,16 @@
 
 This project has been split into reusable pages, styles and scripts so it can grow into a full website.
 
-## Run in VS Code
+## Run locally
 
-1. Open the `winebank-website` folder in VS Code.
-2. Install the **Live Server** extension by Ritwick Dey.
-3. Right-click `index.html`.
-4. Select **Open with Live Server**.
+From the project folder, start a small local server:
+
+```bash
+python3 -m http.server 5500
+```
+
+Then open `http://localhost:5500` in a browser. You can also use the
+**Live Server** extension in VS Code.
 
 ## Current pages
 
@@ -22,11 +26,12 @@ This project has been split into reusable pages, styles and scripts so it can gr
 - `css/auth.css` — shared login/signup layout
 - `css/home.css` — homepage styling
 - `css/dashboard.css` — dashboard styling
-- `js/common.js` — reusable validation and UI helpers
-- `js/login.js` — login logic
-- `js/signup.js` — signup logic
-- `js/dashboard.js` — dashboard demo state
-- `js/age-verification.js` — reusable age-verification functions
+- `JS/navigation.js` — shared responsive navigation
+- `JS/common.js` — reusable validation and UI helpers
+- `JS/login.js` — login logic
+- `JS/signup.js` — signup logic
+- `JS/dashboard.js` — dashboard demo state
+- `JS/age-verification.js` — reusable age-verification functions
 
 ## Important
 
@@ -34,8 +39,8 @@ The current authentication is a front-end demo using `localStorage`. It is not s
 
 When the backend is ready, replace the demo sections in:
 
-- `js/login.js`
-- `js/signup.js`
+- `JS/login.js`
+- `JS/signup.js`
 
 with real API calls, for example:
 
