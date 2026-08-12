@@ -74,6 +74,54 @@ iframe {
   white-space: nowrap;
 }
 
+.site-header--home {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  height: auto;
+  padding: 0;
+}
+
+.site-logo--hero {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: clamp(14px, 2.5vw, 38px);
+  width: 100%;
+  max-width: none;
+  padding: clamp(26px, 4vw, 54px) 5% clamp(20px, 3vw, 38px);
+  overflow: visible;
+  border-bottom: 1px solid var(--line);
+  color: #091405;
+  line-height: 0.9;
+  letter-spacing: normal;
+  text-overflow: clip;
+}
+
+.site-logo__name {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(58px, 8vw, 100px);
+  font-weight: 400;
+  letter-spacing: 0.07em;
+  white-space: nowrap;
+}
+
+.site-logo__suffix {
+  color: #81751e;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: clamp(26px, 3.4vw, 42px);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  white-space: nowrap;
+}
+
+.site-header--home .site-nav {
+  grid-column: 1 / -1;
+  justify-content: center;
+  min-height: 64px;
+  padding: 0 5%;
+}
+
 .site-nav {
   display: flex;
   align-items: center;
@@ -261,6 +309,24 @@ button:disabled {
     text-overflow: ellipsis;
   }
 
+  .site-header--home {
+    height: auto;
+    padding: 0;
+  }
+
+  .site-header--home .site-logo--hero {
+    max-width: none;
+    overflow: visible;
+    font-size: inherit;
+    letter-spacing: normal;
+    text-overflow: clip;
+  }
+
+  .site-header--home .menu-toggle {
+    grid-column: 2;
+    margin: 12px 5vw 12px 0;
+  }
+
   .menu-toggle {
     display: inline-flex;
     align-items: center;
@@ -283,6 +349,12 @@ button:disabled {
     border-bottom: 1px solid var(--line);
     background: var(--paper);
     box-shadow: 0 12px 25px rgba(33, 29, 25, 0.14);
+  }
+
+  .site-header--home .site-nav {
+    top: 100%;
+    max-height: calc(100vh - 70px);
+    padding: 18px;
   }
 
   .site-nav.open {
@@ -316,6 +388,20 @@ button:disabled {
     max-width: calc(100% - 72px);
     font-size: 17px;
     letter-spacing: 0.11em;
+  }
+
+  .site-logo--hero {
+    gap: 10px;
+    padding: 24px 14px 20px;
+  }
+
+  .site-logo__name {
+    font-size: clamp(42px, 12vw, 58px);
+    letter-spacing: 0.035em;
+  }
+
+  .site-logo__suffix {
+    font-size: clamp(20px, 6vw, 28px);
   }
 
   .site-nav {
