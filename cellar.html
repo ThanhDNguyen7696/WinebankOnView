@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Explore the Wine Bank on View cellar and a curated collection of Australian wines." />
+  <title>The Cellar | Wine Bank on View</title>
+  <link rel="stylesheet" href="./css/global.css" />
+  <link rel="stylesheet" href="./css/home.css" />
+</head>
+<body>
+<header class="site-header site-header--home">
+  <a class="site-logo site-logo--hero" href="./index.html" aria-label="Wine Bank on View home">
+    <span class="site-logo__name">WINE BANK</span>
+    <span class="site-logo__suffix">on view</span>
+  </a>
+  <button class="menu-toggle" type="button" aria-label="Open navigation" aria-controls="siteNav" aria-expanded="false">Menu</button>
+  <nav class="site-nav" id="siteNav" aria-label="Main navigation">
+    <a href="./cellar.html" aria-current="page">The Cellar</a>
+    <a href="./index.html#experience">Experience</a>
+    <a href="./index.html#membership">Membership</a>
+    <a href="./index.html#events">Events</a>
+    <a href="./index.html#contact">Contact</a>
+    <a class="nav-cta" href="./login.html">Member Login</a>
+    <button class="cart-button" type="button" id="openCart">Bag <span id="cartCount">0</span></button>
+  </nav>
+</header>
+
+<main>
+  <section class="section" id="shop">
+    <div class="section-heading">
+      <div><p class="eyebrow">The cellar</p><h1>Featured bottles</h1></div>
+      <p>Explore a showcase collection of regional favourites. Checkout is disabled in this demonstration.</p>
+    </div>
+    <div class="shop-toolbar">
+      <div class="filter-group" role="group" aria-label="Filter wines">
+        <button class="filter-button active" data-filter="all">All</button>
+        <button class="filter-button" data-filter="red">Red</button>
+        <button class="filter-button" data-filter="white">White</button>
+        <button class="filter-button" data-filter="sparkling">Sparkling</button>
+      </div>
+      <label class="search-box"><span class="sr-only">Search wines</span><input id="wineSearch" type="search" placeholder="Search the cellar" /></label>
+    </div>
+    <div class="product-grid" id="productGrid"></div>
+    <p class="empty-state" id="emptyState" hidden>No wines match your search.</p>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <div><a class="footer-logo" href="./index.html">WINEBANK</a><p>Wine, dining and community in Bendigo.</p></div>
+    <div><strong>Explore</strong><a href="./cellar.html">The Cellar</a><a href="./index.html#membership">Membership</a><a href="./index.html#events">Events</a></div>
+    <div class="footer-column"><h3>Find Us</h3><p>WineBank Bendigo<br>45 View Street<br>Bendigo VIC 3550<br><br>Phone: (03) 5440 1234<br>Email: info@winebank.com.au</p></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 WineBank on View</span><span>Enjoy responsibly. 18+ only.</span></div>
+</footer>
+
+<aside class="cart-drawer" id="cartDrawer" aria-hidden="true" aria-label="Shopping bag"><div class="cart-header"><h2>Your bag</h2><button id="closeCart" class="icon-button" aria-label="Close bag">×</button></div><div class="cart-items" id="cartItems"></div><div class="cart-footer"><div class="cart-total"><span>Total</span><strong id="cartTotal">$0.00</strong></div><button class="primary-button" id="checkoutButton">Demo checkout</button><small>No payment is processed in this prototype.</small></div></aside>
+<div class="drawer-backdrop" id="drawerBackdrop"></div>
+<div class="modal" id="ageModal" role="dialog" aria-modal="true" aria-labelledby="ageTitle"><div class="modal-card"><p class="eyebrow">Welcome to WineBank</p><h2 id="ageTitle">Are you 18 or older?</h2><p>You must be of legal drinking age to enter this demonstration website.</p><div class="modal-actions"><button class="primary-button" id="confirmAge">Yes, enter site</button><button class="secondary-button" id="denyAge">No, leave</button></div><small>Enjoy responsibly.</small></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="./JS/navigation.js"></script>
+<script type="module" src="./JS/cellar.js"></script>
+</body>
+</html>
