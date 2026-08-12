@@ -19,6 +19,8 @@ Then open `http://localhost:5500` in a browser. You can also use the
 - `login.html` — member login
 - `signup.html` — account creation
 - `member-dashboard.html` — demo dashboard
+- `food.html` — dining information and current menu link
+- `admin.html` — protected food-menu upload screen
 
 ## Structure
 
@@ -32,6 +34,21 @@ Then open `http://localhost:5500` in a browser. You can also use the
 - `JS/signup.js` — signup logic
 - `JS/dashboard.js` — dashboard demo state
 - `JS/age-verification.js` — reusable age-verification functions
+- `JS/admin.js` — Supabase admin login and PDF upload
+- `JS/menu.js` — resolves the current Supabase menu URL
+
+## Menu administration setup
+
+The Food page keeps using the existing menu PDF until Supabase is configured.
+
+1. Create a Supabase project.
+2. Run `supabase/setup.sql` in **SQL Editor**.
+3. Create the owner account in **Authentication > Users**.
+4. Run the final commented SQL statement in `supabase/setup.sql`, replacing the example email.
+5. Copy the project URL and public anon key into `JS/supabase-config.js`.
+6. Open `/admin.html`, sign in and publish the first PDF.
+
+The anon key is designed to be public. Never place a Supabase service-role key in this repository. Storage policies restrict uploads to rows in `admin_users`.
 
 ## Important
 

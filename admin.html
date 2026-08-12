@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Menu administration | Wine Bank on View</title>
+  <link rel="stylesheet" href="./css/global.css" />
+  <link rel="stylesheet" href="./css/admin.css" />
+</head>
+<body>
+<header class="site-header">
+  <a class="site-logo" href="./index.html">WINEBANK</a>
+  <a class="secondary-button" href="./food.html">View Food page</a>
+</header>
+
+<main class="admin-page">
+  <div class="admin-shell">
+    <p class="admin-eyebrow">Private administration</p>
+    <h1>Food menu</h1>
+    <p class="admin-intro">Publish a replacement dining menu without editing the website or using GitHub. The Food page updates as soon as the PDF upload succeeds.</p>
+
+    <section class="admin-card admin-notice" id="setupNotice" hidden>
+      <h2>Supabase setup required</h2>
+      <p class="admin-help">Add the project URL and public anon key to <code>JS/supabase-config.js</code>, then run <code>supabase/setup.sql</code> in the Supabase SQL Editor.</p>
+    </section>
+
+    <section class="admin-card" id="adminLoginPanel" hidden>
+      <h2>Admin sign in</h2>
+      <form id="adminLoginForm">
+        <div class="admin-field">
+          <label for="adminEmail">Email address</label>
+          <input id="adminEmail" type="email" autocomplete="username" required />
+        </div>
+        <div class="admin-field">
+          <label for="adminPassword">Password</label>
+          <input id="adminPassword" type="password" autocomplete="current-password" required />
+        </div>
+        <button class="primary-button" type="submit">Sign in</button>
+        <div class="admin-status" id="adminLoginStatus" aria-live="polite"></div>
+      </form>
+    </section>
+
+    <section class="admin-card" id="menuManagerPanel" hidden>
+      <div class="admin-topline">
+        <span class="admin-identity">Signed in as <strong id="adminIdentity"></strong></span>
+        <button id="adminLogout" type="button">Sign out</button>
+      </div>
+      <h2>Publish a new menu</h2>
+      <p class="admin-help">PDF only, maximum file size 10 MB. Publishing replaces the current menu immediately.</p>
+      <form id="menuUploadForm">
+        <div class="admin-field admin-file">
+          <label for="menuFile">Choose dining menu PDF</label>
+          <input id="menuFile" type="file" accept="application/pdf,.pdf" required />
+          <span class="admin-file-meta" id="selectedFile">No file selected</span>
+        </div>
+        <div class="admin-actions">
+          <button class="primary-button" type="submit">Publish new menu</button>
+          <a class="secondary-button" id="currentMenuLink" href="#" target="_blank" rel="noopener">Preview current menu</a>
+        </div>
+        <div class="admin-status" id="menuUploadStatus" aria-live="polite"></div>
+      </form>
+    </section>
+  </div>
+</main>
+
+<script type="module" src="./JS/admin.js"></script>
+</body>
+</html>
