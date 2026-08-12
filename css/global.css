@@ -138,6 +138,11 @@ iframe {
   color: var(--wine);
 }
 
+.site-nav a[aria-current="page"] {
+  color: var(--wine);
+  font-weight: 700;
+}
+
 .nav-cta {
   padding: 11px 15px;
   border: 1px solid var(--wine);

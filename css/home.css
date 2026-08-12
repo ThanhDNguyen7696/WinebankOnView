@@ -114,7 +114,7 @@
     margin-bottom:35px
 }
 
-.section-heading h2,.split-content h2,.membership-copy h2,.contact-section h2 {
+.section-heading h1,.section-heading h2,.split-content h2,.membership-copy h2,.contact-section h2 {
     font:400 clamp(38px,5vw,62px)/1.06 Georgia,serif;
     margin:8px 0;
     color:var(--wine-dark)

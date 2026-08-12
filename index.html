@@ -16,9 +16,8 @@
   </a>
   <button class="menu-toggle" type="button" aria-label="Open navigation" aria-controls="siteNav" aria-expanded="false">Menu</button>
   <nav class="site-nav" id="siteNav" aria-label="Main navigation">
-    <a href="#shop">Shop</a><a href="#experience">Experience</a><a href="#membership">Membership</a><a href="#events">Events</a><a href="#contact">Contact</a>
+    <a href="./cellar.html">The Cellar</a><a href="#experience">Experience</a><a href="#membership">Membership</a><a href="#events">Events</a><a href="#contact">Contact</a>
     <a class="nav-cta" href="./login.html">Member Login</a>
-    <button class="cart-button" type="button" id="openCart">Bag <span id="cartCount">0</span></button>
   </nav>
 </header>
 
@@ -30,7 +29,7 @@
       <h1>Remarkable wine.<br />Unforgettable company.</h1>
       <p>Discover a curated collection of Australian wines and experiences from the heart of Bendigo.</p>
       <div class="hero-actions">
-        <a class="primary-button" href="#shop">Explore the cellar</a>
+        <a class="primary-button" href="./cellar.html">Explore the cellar</a>
         <a class="secondary-button light-button" href="#experience">Visit WineBank</a>
       </div>
     </div>
@@ -40,24 +39,6 @@
     <div><strong>Curated locally</strong><span>Selected by our cellar team</span></div>
     <div><strong>Complimentary pickup</strong><span>From WineBank on View</span></div>
     <div><strong>Member privileges</strong><span>Events, offers and first access</span></div>
-  </section>
-
-  <section class="section" id="shop">
-    <div class="section-heading">
-      <div><p class="eyebrow">The cellar</p><h2>Featured bottles</h2></div>
-      <p>Explore a showcase collection of regional favourites. Checkout is disabled in this demonstration.</p>
-    </div>
-    <div class="shop-toolbar">
-      <div class="filter-group" role="group" aria-label="Filter wines">
-        <button class="filter-button active" data-filter="all">All</button>
-        <button class="filter-button" data-filter="red">Red</button>
-        <button class="filter-button" data-filter="white">White</button>
-        <button class="filter-button" data-filter="sparkling">Sparkling</button>
-      </div>
-      <label class="search-box"><span class="sr-only">Search wines</span><input id="wineSearch" type="search" placeholder="Search the cellar" /></label>
-    </div>
-    <div class="product-grid" id="productGrid"></div>
-    <p class="empty-state" id="emptyState" hidden>No wines match your search.</p>
   </section>
 
   <section class="split-section" id="experience">
@@ -105,7 +86,7 @@
     </div>
     <div>
       <strong>Explore</strong> 
-      <a href="#shop">Shop</a>
+      <a href="./cellar.html">The Cellar</a>
       <a href="#membership">Membership</a>
       <a href="#events">Events</a>
     </div>  
@@ -133,9 +114,6 @@
 
   </div>
 </footer>
-
-<aside class="cart-drawer" id="cartDrawer" aria-hidden="true" aria-label="Shopping bag"><div class="cart-header"><h2>Your bag</h2><button id="closeCart" class="icon-button" aria-label="Close bag">×</button></div><div class="cart-items" id="cartItems"></div><div class="cart-footer"><div class="cart-total"><span>Total</span><strong id="cartTotal">$0.00</strong></div><button class="primary-button" id="checkoutButton">Demo checkout</button><small>No payment is processed in this prototype.</small></div></aside>
-<div class="drawer-backdrop" id="drawerBackdrop"></div>
 
 <div class="modal" id="ageModal" role="dialog" aria-modal="true" aria-labelledby="ageTitle"><div class="modal-card"><p class="eyebrow">Welcome to WineBank</p><h2 id="ageTitle">Are you 18 or older?</h2><p>You must be of legal drinking age to enter this demonstration website.</p><div class="modal-actions"><button class="primary-button" id="confirmAge">Yes, enter site</button><button class="secondary-button" id="denyAge">No, leave</button></div><small>Enjoy responsibly.</small></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
