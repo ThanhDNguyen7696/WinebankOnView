@@ -1,14 +1,31 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   validEmail,
   setError,
   setStatus,
   setupPasswordToggles
 } from "./common.js";
+import {
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY,
+  hasSupabaseConfig
+} from "./supabase-config.js";
 
 setupPasswordToggles();
 
 const form = document.getElementById("loginForm");
 const forgotPassword = document.getElementById("forgotPassword");
+const supabase = hasSupabaseConfig()
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+if (!supabase) {
+  setStatus("loginStatus", "Account login is being configured. Please try again later.", "error");
+  form.querySelector('button[type="submit"]').disabled = true;
+} else if (sessionStorage.getItem("winebankSignupSuccess")) {
+  sessionStorage.removeItem("winebankSignupSuccess");
+  setStatus("loginStatus", "Account created successfully. Please log in.", "success");
+}
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -16,7 +33,6 @@ form.addEventListener("submit", async (event) => {
 
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value;
-  const rememberMe = document.getElementById("rememberMe").checked;
 
   const emailError = !email
     ? "Email is required."
@@ -29,48 +45,30 @@ form.addEventListener("submit", async (event) => {
   setError("loginEmail", "loginEmailError", emailError);
   setError("loginPassword", "loginPasswordError", passwordError);
 
-  if (emailError || passwordError) return;
+  if (emailError || passwordError || !supabase) return;
 
   const submitButton = form.querySelector('button[type="submit"]');
   submitButton.disabled = true;
   submitButton.textContent = "Logging in...";
 
-  try {
-    // Replace demo code with a real backend request later:
-    //
-    // const response = await fetch("/api/auth/login", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   credentials: "include",
-    //   body: JSON.stringify({ email, password, rememberMe })
-    // });
-    //
-    // if (!response.ok) {
-    //   throw new Error("Incorrect email or password.");
-    // }
-    //
-    // window.location.href = "./member-dashboard.html";
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
 
-    localStorage.setItem("winebankDemoUser", JSON.stringify({
-      firstName: "Jessica",
-      email,
-      membershipStatus: "Pending"
-    }));
+  submitButton.disabled = false;
+  submitButton.textContent = "Log in";
 
-    window.location.href = "./member-dashboard.html";
-  } catch (error) {
+  if (error) {
     setStatus(
       "loginStatus",
-      error.message || "Unable to log in. Please try again.",
+      "Incorrect email or password, or the email has not been confirmed.",
       "error"
     );
-  } finally {
-    submitButton.disabled = false;
-    submitButton.textContent = "Log in";
+    return;
   }
+
+  window.location.href = "./member-dashboard.html";
 });
 
-forgotPassword.addEventListener("click", () => {
+forgotPassword.addEventListener("click", async () => {
   const email = document.getElementById("loginEmail").value.trim();
 
   if (!email || !validEmail(email)) {
@@ -82,9 +80,14 @@ forgotPassword.addEventListener("click", () => {
     return;
   }
 
+  if (!supabase) return;
+
+  const redirectTo = new URL("./reset-password.html", window.location.href).href;
+  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+
   setStatus(
     "loginStatus",
-    `Demo: a password reset link would be sent to ${email}.`,
-    "success"
+    error ? error.message : `A password reset link has been sent to ${email}.`,
+    error ? "error" : "success"
   );
 });
