@@ -1,3 +1,4 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   validEmail,
   validAustralianPhone,
@@ -5,10 +6,23 @@ import {
   setStatus,
   setupPasswordToggles
 } from "./common.js";
+import {
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY,
+  hasSupabaseConfig
+} from "./supabase-config.js";
 
 setupPasswordToggles();
 
 const form = document.getElementById("signupForm");
+const supabase = hasSupabaseConfig()
+  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
+  : null;
+
+if (!supabase) {
+  setStatus("signupStatus", "Account registration is being configured. Please try again later.", "error");
+  form.querySelector('button[type="submit"]').disabled = true;
+}
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -29,28 +43,10 @@ form.addEventListener("submit", async (event) => {
   const errors = {
     firstName: !data.firstName ? "First name is required." : "",
     lastName: !data.lastName ? "Last name is required." : "",
-    email: !data.email
-      ? "Email is required."
-      : !validEmail(data.email)
-        ? "Please enter a valid email address."
-        : "",
-    phone: !data.phone
-      ? "Phone number is required."
-      : !validAustralianPhone(data.phone)
-        ? "Please enter a valid Australian phone number."
-        : "",
-    password: !data.password
-      ? "Password is required."
-      : data.password.length < 8
-        ? "Use at least 8 characters."
-        : !/[A-Z]/.test(data.password) || !/[0-9]/.test(data.password)
-          ? "Include at least one capital letter and one number."
-          : "",
-    confirmPassword: !data.confirmPassword
-      ? "Please confirm your password."
-      : data.confirmPassword !== data.password
-        ? "Passwords do not match."
-        : ""
+    email: !data.email ? "Email is required." : !validEmail(data.email) ? "Please enter a valid email address." : "",
+    phone: !data.phone ? "Phone number is required." : !validAustralianPhone(data.phone) ? "Please enter a valid Australian phone number." : "",
+    password: !data.password ? "Password is required." : data.password.length < 8 ? "Use at least 8 characters." : !/[A-Z]/.test(data.password) || !/[0-9]/.test(data.password) ? "Include at least one capital letter and one number." : "",
+    confirmPassword: !data.confirmPassword ? "Please confirm your password." : data.confirmPassword !== data.password ? "Passwords do not match." : ""
   };
 
   setError("firstName", "firstNameError", errors.firstName);
@@ -59,64 +55,46 @@ form.addEventListener("submit", async (event) => {
   setError("phone", "phoneError", errors.phone);
   setError("signupPassword", "signupPasswordError", errors.password);
   setError("confirmPassword", "confirmPasswordError", errors.confirmPassword);
+  document.getElementById("ageCheckError").textContent = data.ageConfirmed ? "" : "You must confirm that you are 18 or older.";
+  document.getElementById("termsCheckError").textContent = data.termsAccepted ? "" : "You must accept the terms to continue.";
 
-  document.getElementById("ageCheckError").textContent =
-    data.ageConfirmed ? "" : "You must confirm that you are 18 or older.";
-
-  document.getElementById("termsCheckError").textContent =
-    data.termsAccepted ? "" : "You must accept the terms to continue.";
-
-  const hasErrors =
-    Object.values(errors).some(Boolean) ||
-    !data.ageConfirmed ||
-    !data.termsAccepted;
-
-  if (hasErrors) return;
+  if (Object.values(errors).some(Boolean) || !data.ageConfirmed || !data.termsAccepted || !supabase) return;
 
   const submitButton = form.querySelector('button[type="submit"]');
   submitButton.disabled = true;
   submitButton.textContent = "Creating account...";
 
-  try {
-    // Replace demo code with a real backend request later:
-    //
-    // const response = await fetch("/api/auth/signup", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   credentials: "include",
-    //   body: JSON.stringify({
-    //     firstName: data.firstName,
-    //     lastName: data.lastName,
-    //     email: data.email,
-    //     phone: data.phone,
-    //     password: data.password,
-    //     ageConfirmed: data.ageConfirmed,
-    //     termsAccepted: data.termsAccepted,
-    //     marketingConsent: data.marketingConsent
-    //   })
-    // });
-    //
-    // if (!response.ok) {
-    //   throw new Error("Unable to create account.");
-    // }
+  const emailRedirectTo = new URL("./member-dashboard.html", window.location.href).href;
+  const { data: result, error } = await supabase.auth.signUp({
+    email: data.email,
+    password: data.password,
+    options: {
+      emailRedirectTo,
+      data: {
+        first_name: data.firstName,
+        last_name: data.lastName,
+        phone: data.phone,
+        age_confirmed: data.ageConfirmed,
+        terms_accepted: data.termsAccepted,
+        marketing_consent: data.marketingConsent,
+        marketing_consent_at: data.marketingConsent ? new Date().toISOString() : null
+      }
+    }
+  });
 
-    localStorage.setItem("winebankDemoUser", JSON.stringify({
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email: data.email,
-      phone: data.phone,
-      membershipStatus: "Pending"
-    }));
+  submitButton.disabled = false;
+  submitButton.textContent = "Create account";
 
-    window.location.href = "./member-dashboard.html";
-  } catch (error) {
-    setStatus(
-      "signupStatus",
-      error.message || "Unable to create your account. Please try again.",
-      "error"
-    );
-  } finally {
-    submitButton.disabled = false;
-    submitButton.textContent = "Create account";
+  if (error) {
+    setStatus("signupStatus", error.message, "error");
+    return;
   }
+
+  if (result.session) {
+    window.location.href = "./member-dashboard.html";
+    return;
+  }
+
+  form.reset();
+  setStatus("signupStatus", "Account created. Check your email to confirm your address, then log in.", "success");
 });
