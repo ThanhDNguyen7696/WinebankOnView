@@ -91,12 +91,10 @@ form.addEventListener("submit", async (event) => {
   submitButton.disabled = true;
   submitButton.textContent = "Creating account...";
 
-  const emailRedirectTo = new URL("./member-dashboard.html", window.location.href).href;
   const { data: result, error } = await supabase.auth.signUp({
     email: data.email,
     password: data.password,
     options: {
-      emailRedirectTo,
       data: {
         first_name: data.firstName,
         last_name: data.lastName,
