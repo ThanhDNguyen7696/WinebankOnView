@@ -1,0 +1,6 @@
+{
+  "files.exclude": {
+    "**/.env.local": false
+  },
+  "explorer.excludeGitIgnore": false
+}

@@ -45,23 +45,15 @@ The Food page keeps using the existing menu PDF until Supabase is configured.
 2. Run `supabase/setup.sql` in **SQL Editor**.
 3. Create the owner account in **Authentication > Users**.
 4. Run the final commented SQL statement in `supabase/setup.sql`, replacing the example email.
-5. Copy the project URL and public anon key into `JS/supabase-config.js`.
+5. Copy `.env.example` to `.env.local`, enter the project URL and publishable key, then run `npm run config`.
 6. Open `/admin.html`, sign in and publish the first PDF.
 
 The anon key is designed to be public. Never place a Supabase service-role key in this repository. Storage policies restrict uploads to rows in `admin_users`.
 
-## Important
+`.env.local` is ignored by Git. For Vercel, add `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` under Project Settings > Environment Variables and use `npm run build` as the build command. The generated browser configuration still contains the publishable key by design; authorization is enforced by Supabase row-level security.
 
-The current authentication is a front-end demo using `localStorage`. It is not secure and is not a real login system.
+## Authentication
 
-When the backend is ready, replace the demo sections in:
+Member registration, login, password reset, session handling and logout use Supabase Auth. Names, phone details and consent selections are stored in Supabase user metadata. Passwords and sessions are not stored in application `localStorage` code.
 
-- `JS/login.js`
-- `JS/signup.js`
-
-with real API calls, for example:
-
-- `POST /api/auth/login`
-- `POST /api/auth/signup`
-
-Do not store real passwords in localStorage.
+Add the deployed website URL and local development URL to **Supabase > Authentication > URL Configuration** so email confirmations and password resets can return to the website.

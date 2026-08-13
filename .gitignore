@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+EDIT-ENV-LOCAL.env
+
+node_modules/
+.DS_Store
+
+# Generated from environment variables before local preview/deployment.
+JS/supabase-config.js

@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "scripts": {
+    "config": "node scripts/generate-supabase-config.mjs",
+    "build": "node scripts/generate-supabase-config.mjs"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "^2.112.3"
+  }
+}
