@@ -1,6 +1,6 @@
--- Run once in Supabase Dashboard > SQL Editor.
--- The menus bucket is public so visitors can read the current menu.
--- Uploading is restricted to users listed in public.admin_users.
+-- WineBank production admin PDF menu setup
+-- Safe to run more than once.
+-- Uses only authenticated user identity + RLS. Never use a secret/service-role key in browser code.
 
 create table if not exists public.admin_users (
   user_id uuid primary key references auth.users(id) on delete cascade,
@@ -9,58 +9,91 @@ create table if not exists public.admin_users (
 
 alter table public.admin_users enable row level security;
 
-drop policy if exists "Admins can read their own role" on public.admin_users;
-create policy "Admins can read their own role"
-on public.admin_users for select
+-- Existing projects can keep this self-check policy as a compatibility fallback.
+drop policy if exists "Users can check own admin status" on public.admin_users;
+create policy "Users can check own admin status"
+on public.admin_users
+for select
 to authenticated
 using (user_id = auth.uid());
 
-insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
-values ('menus', 'menus', true, 10485760, array['application/pdf'])
+-- Central admin check used by Storage policies and newer frontend code.
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.admin_users
+    where user_id = auth.uid()
+  );
+$$;
+
+revoke all on function public.is_admin() from public;
+grant execute on function public.is_admin() to authenticated;
+
+insert into storage.buckets (
+  id, name, public, file_size_limit, allowed_mime_types
+)
+values (
+  'menu-pdfs',
+  'menu-pdfs',
+  true,
+  10485760,
+  array['application/pdf']
+)
 on conflict (id) do update set
-  public = excluded.public,
-  file_size_limit = excluded.file_size_limit,
-  allowed_mime_types = excluded.allowed_mime_types;
+  public = true,
+  file_size_limit = 10485760,
+  allowed_mime_types = array['application/pdf'];
 
-drop policy if exists "Public can read menus" on storage.objects;
-create policy "Public can read menus"
-on storage.objects for select
-to public
-using (bucket_id = 'menus');
-
-drop policy if exists "Admins can upload menus" on storage.objects;
-create policy "Admins can upload menus"
-on storage.objects for insert
+-- INSERT is needed the first time current-menu.pdf is created.
+drop policy if exists "Admins can upload menu PDFs" on storage.objects;
+create policy "Admins can upload menu PDFs"
+on storage.objects
+for insert
 to authenticated
 with check (
-  bucket_id = 'menus'
-  and exists (
-    select 1 from public.admin_users
-    where admin_users.user_id = auth.uid()
-  )
+  bucket_id = 'menu-pdfs'
+  and public.is_admin()
 );
 
-drop policy if exists "Admins can replace menus" on storage.objects;
-create policy "Admins can replace menus"
-on storage.objects for update
+-- UPDATE is needed when upsert replaces the existing live file.
+drop policy if exists "Admins can update menu PDFs" on storage.objects;
+create policy "Admins can update menu PDFs"
+on storage.objects
+for update
 to authenticated
 using (
-  bucket_id = 'menus'
-  and exists (
-    select 1 from public.admin_users
-    where admin_users.user_id = auth.uid()
-  )
+  bucket_id = 'menu-pdfs'
+  and public.is_admin()
 )
 with check (
-  bucket_id = 'menus'
-  and exists (
-    select 1 from public.admin_users
-    where admin_users.user_id = auth.uid()
-  )
+  bucket_id = 'menu-pdfs'
+  and public.is_admin()
 );
 
--- After creating an admin in Authentication > Users, replace the email below
--- and run this statement separately:
--- insert into public.admin_users (user_id)
--- select id from auth.users where email = 'owner@example.com'
--- on conflict (user_id) do nothing;
+-- Admin dashboard reads file metadata to show live status, date and size.
+drop policy if exists "Admins can read menu PDF metadata" on storage.objects;
+create policy "Admins can read menu PDF metadata"
+on storage.objects
+for select
+to authenticated
+using (
+  bucket_id = 'menu-pdfs'
+  and public.is_admin()
+);
+
+-- Kept for maintenance; the current UI does not expose a delete button.
+drop policy if exists "Admins can delete menu PDFs" on storage.objects;
+create policy "Admins can delete menu PDFs"
+on storage.objects
+for delete
+to authenticated
+using (
+  bucket_id = 'menu-pdfs'
+  and public.is_admin()
+);

@@ -8,62 +8,104 @@
   <link rel="stylesheet" href="./css/global.css" />
   <link rel="stylesheet" href="./css/admin.css" />
 </head>
-<body>
-<header class="site-header">
-  <a class="site-logo" href="./index.html">WINEBANK</a>
-  <a class="secondary-button" href="./food.html">View Food page</a>
-</header>
-
-<main class="admin-page">
-  <div class="admin-shell">
-    <p class="admin-eyebrow">Private administration</p>
-    <h1>Food menu</h1>
-    <p class="admin-intro">Publish a replacement dining menu without editing the website or using GitHub. The Food page updates as soon as the PDF upload succeeds.</p>
-
-    <section class="admin-card admin-notice" id="setupNotice" hidden>
-      <h2>Supabase setup required</h2>
-      <p class="admin-help">Add the project URL and public anon key to <code>JS/supabase-config.js</code>, then run <code>supabase/setup.sql</code> in the Supabase SQL Editor.</p>
-    </section>
-
-    <section class="admin-card" id="adminLoginPanel" hidden>
-      <h2>Admin sign in</h2>
-      <form id="adminLoginForm">
-        <div class="admin-field">
-          <label for="adminEmail">Email address</label>
-          <input id="adminEmail" type="email" autocomplete="username" required />
-        </div>
-        <div class="admin-field">
-          <label for="adminPassword">Password</label>
-          <input id="adminPassword" type="password" autocomplete="current-password" required />
-        </div>
-        <button class="primary-button" type="submit">Sign in</button>
-        <div class="admin-status" id="adminLoginStatus" aria-live="polite"></div>
-      </form>
-    </section>
-
-    <section class="admin-card" id="menuManagerPanel" hidden>
-      <div class="admin-topline">
-        <span class="admin-identity">Signed in as <strong id="adminIdentity"></strong></span>
-        <button id="adminLogout" type="button">Sign out</button>
-      </div>
-      <h2>Publish a new menu</h2>
-      <p class="admin-help">PDF only, maximum file size 10 MB. Publishing replaces the current menu immediately.</p>
-      <form id="menuUploadForm">
-        <div class="admin-field admin-file">
-          <label for="menuFile">Choose dining menu PDF</label>
-          <input id="menuFile" type="file" accept="application/pdf,.pdf" required />
-          <span class="admin-file-meta" id="selectedFile">No file selected</span>
-        </div>
-        <div class="admin-actions">
-          <button class="primary-button" type="submit">Publish new menu</button>
-          <a class="secondary-button" id="currentMenuLink" href="#" target="_blank" rel="noopener">Preview current menu</a>
-        </div>
-        <div class="admin-status" id="menuUploadStatus" aria-live="polite"></div>
-      </form>
-    </section>
+<body class="admin-locked">
+  <div class="admin-gate" id="adminGate" role="status" aria-live="polite">
+    <div class="admin-gate-mark">WB</div>
+    <p id="adminGateMessage">Checking authorised access…</p>
+    <p class="admin-gate-detail" id="adminGateDetail">Connecting securely to WineBank.</p>
+    <button class="secondary-button" id="adminGateRetry" type="button" hidden>Try again</button>
   </div>
-</main>
 
+  <div id="adminApp" hidden>
+    <header class="site-header">
+      <a class="site-logo" href="./index.html">WINEBANK</a>
+      <a class="secondary-button" href="./food.html">View Food page</a>
+    </header>
+
+    <main class="admin-page">
+      <div class="admin-shell">
+        <p class="admin-eyebrow">Private administration</p>
+        <h1>Dining menu</h1>
+        <p class="admin-intro">Replace the live dining menu without editing the website. Only authorised WineBank administrators can access this page.</p>
+
+        <section class="admin-card admin-current">
+          <div class="admin-topline">
+            <div>
+              <span class="admin-live-badge">Live menu</span>
+              <h2>Current PDF</h2>
+            </div>
+            <button id="adminLogout" type="button">Sign out</button>
+          </div>
+
+          <div class="admin-current-grid">
+            <div>
+              <p class="admin-meta-label">Signed in as</p>
+              <p class="admin-meta-value" id="adminIdentity">—</p>
+            </div>
+            <div>
+              <p class="admin-meta-label">File</p>
+              <p class="admin-meta-value" id="currentMenuName">current-menu.pdf</p>
+            </div>
+            <div>
+              <p class="admin-meta-label">Last updated</p>
+              <p class="admin-meta-value" id="currentMenuUpdated">Checking…</p>
+            </div>
+            <div>
+              <p class="admin-meta-label">File size</p>
+              <p class="admin-meta-value" id="currentMenuSize">Checking…</p>
+            </div>
+          </div>
+
+          <div class="admin-actions">
+            <a class="secondary-button" id="currentMenuLink" href="#" target="_blank" rel="noopener">Preview current menu</a>
+            <button class="secondary-button" id="refreshMenuStatus" type="button">Refresh status</button>
+          </div>
+        </section>
+
+
+        <section class="admin-card admin-system">
+          <div class="admin-topline">
+            <div>
+              <p class="admin-eyebrow">System status</p>
+              <h2>Administration health</h2>
+            </div>
+          </div>
+          <div class="admin-health-grid">
+            <div class="admin-health-item"><span>Supabase</span><strong id="systemConnection" data-state="pending">Checking…</strong></div>
+            <div class="admin-health-item"><span>Authentication</span><strong id="systemAuth" data-state="pending">Checking…</strong></div>
+            <div class="admin-health-item"><span>Admin role</span><strong id="systemRole" data-state="pending">Checking…</strong></div>
+            <div class="admin-health-item"><span>PDF Storage</span><strong id="systemStorage" data-state="pending">Checking…</strong></div>
+          </div>
+          <p class="admin-help">If a service is unavailable, the page will show the exact failed step instead of remaining on a loading screen.</p>
+        </section>
+
+        <section class="admin-card">
+          <h2>Replace menu PDF</h2>
+          <p class="admin-help">Choose a PDF up to 10 MB. Publishing replaces the current live menu immediately.</p>
+
+          <form id="menuUploadForm">
+            <div class="admin-field admin-file">
+              <label for="menuFile">Choose new dining menu PDF</label>
+              <input id="menuFile" type="file" accept="application/pdf,.pdf" required />
+              <span class="admin-file-meta" id="selectedFile">No file selected</span>
+            </div>
+
+            <label class="admin-confirm">
+              <input id="replaceConfirm" type="checkbox" required />
+              <span>I understand this will replace the current live menu.</span>
+            </label>
+
+            <div class="admin-actions">
+              <button class="primary-button" type="submit">Publish new menu</button>
+            </div>
+            <div class="admin-status" id="menuUploadStatus" aria-live="polite"></div>
+          </form>
+        </section>
+      </div>
+    </main>
+  </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script type="module" src="./JS/admin.js"></script>
 </body>
 </html>
