@@ -68,26 +68,9 @@ form.addEventListener("submit", async (event) => {
   window.location.href = "./member-dashboard.html";
 });
 
-forgotPassword.addEventListener("click", async () => {
+forgotPassword.addEventListener("click", () => {
   const email = document.getElementById("loginEmail").value.trim();
-
-  if (!email || !validEmail(email)) {
-    setStatus(
-      "loginStatus",
-      "Enter a valid email address first.",
-      "error"
-    );
-    return;
-  }
-
-  if (!supabase) return;
-
-  const redirectTo = new URL("./reset-password.html", window.location.href).href;
-  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
-
-  setStatus(
-    "loginStatus",
-    error ? error.message : `A password reset link has been sent to ${email}.`,
-    error ? "error" : "success"
-  );
+  const resetUrl = new URL("./reset-password.html", window.location.href);
+  if (validEmail(email)) resetUrl.searchParams.set("email", email);
+  window.location.href = resetUrl.href;
 });
