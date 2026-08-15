@@ -4,33 +4,11 @@
     display:flex;
     align-items:center;
     padding:70px 7%;
-    background:linear-gradient(90deg,rgba(24,9,13,.91),rgba(24,9,13,.45)),radial-gradient(circle at 75% 30%,#8b5360 0,#3e1720 35%,#1f0c11 72%);
+    background-image:linear-gradient(90deg,rgba(18,7,10,.94) 0%,rgba(18,7,10,.78) 38%,rgba(18,7,10,.18) 72%,rgba(18,7,10,.08) 100%),url("../assets/images/winebank-hero.png");
+    background-position:center;
+    background-size:cover;
     color:#fff;
     overflow:hidden
-}
-
-.hero:after {
-    content:"";
-    position:absolute;
-    right:9%;
-    bottom:-60px;
-    width:235px;
-    height:580px;
-    border-radius:80px 80px 28px 28px;
-    background:linear-gradient(90deg,#250b10,#6e2634 45%,#260b10);
-    box-shadow:0 0 80px rgba(0,0,0,.4);
-    transform:rotate(8deg)
-}
-
-.hero:before {
-    content:"W";
-    position:absolute;
-    right:11.7%;
-    bottom:160px;
-    z-index:1;
-    font-family:Georgia,serif;
-    font-size:110px;
-    color:rgba(255,255,255,.12)
 }
 
 .hero-content {
@@ -639,10 +617,6 @@
 
 
 @media(max-width:900px) {
-.hero:after,.hero:before {
-        opacity:.35
-    }
-
 .product-grid {
         grid-template-columns:repeat(2,1fr)
     }
@@ -674,7 +648,9 @@
 @media(max-width:650px) {
 .hero {
         min-height:720px;
-        padding:60px 6%
+        padding:60px 6%;
+        background-image:linear-gradient(90deg,rgba(18,7,10,.94),rgba(18,7,10,.72)),url("../assets/images/winebank-hero.png");
+        background-position:68% center
     }
 
 .hero h1 {
