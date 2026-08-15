@@ -1,4 +1,3 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   validEmail,
   setError,
@@ -6,22 +5,29 @@ import {
   setupPasswordToggles
 } from "./common.js";
 import {
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY,
-  hasSupabaseConfig
-} from "./supabase-config.js";
+  getSupabaseClient,
+  checkAdminAccess,
+  withTimeout,
+  friendlySupabaseError
+} from "./supabase-client.js";
 
 setupPasswordToggles();
 
 const form = document.getElementById("loginForm");
 const forgotPassword = document.getElementById("forgotPassword");
-const supabase = hasSupabaseConfig()
-  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
+let supabase = null;
 
-if (!supabase) {
-  setStatus("loginStatus", "Account login is being configured. Please try again later.", "error");
+try {
+  supabase = getSupabaseClient();
+} catch (error) {
+  setStatus("loginStatus", friendlySupabaseError(error, "Account login is unavailable."), "error");
   form.querySelector('button[type="submit"]').disabled = true;
+}
+
+const authNotice = sessionStorage.getItem("winebankAuthNotice");
+if (authNotice) {
+  sessionStorage.removeItem("winebankAuthNotice");
+  setStatus("loginStatus", authNotice, "success");
 } else if (sessionStorage.getItem("winebankSignupSuccess")) {
   sessionStorage.removeItem("winebankSignupSuccess");
   setStatus("loginStatus", "Account created successfully. Please log in.", "success");
@@ -39,55 +45,62 @@ form.addEventListener("submit", async (event) => {
     : !validEmail(email)
       ? "Please enter a valid email address."
       : "";
-
   const passwordError = !password ? "Password is required." : "";
 
   setError("loginEmail", "loginEmailError", emailError);
   setError("loginPassword", "loginPasswordError", passwordError);
-
   if (emailError || passwordError || !supabase) return;
 
   const submitButton = form.querySelector('button[type="submit"]');
   submitButton.disabled = true;
-  submitButton.textContent = "Logging in...";
+  submitButton.textContent = "Logging in…";
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-  submitButton.disabled = false;
-  submitButton.textContent = "Log in";
-
-  if (error) {
-    setStatus(
-      "loginStatus",
-      "Incorrect email or password, or the email has not been confirmed.",
-      "error"
+  try {
+    const { data, error } = await withTimeout(
+      supabase.auth.signInWithPassword({ email, password }),
+      15000,
+      "Sign in"
     );
-    return;
-  }
 
-  window.location.href = "./member-dashboard.html";
+    if (error) throw error;
+    if (!data?.user) throw new Error("Login completed without a user session.");
+
+    setStatus("loginStatus", "Login successful. Checking account access…", "");
+    submitButton.textContent = "Checking access…";
+
+    const { isAdmin } = await checkAdminAccess(supabase, data.user.id);
+    window.location.replace(isAdmin ? "./admin.html" : "./member-dashboard.html");
+  } catch (error) {
+    console.error("WineBank login failed:", error);
+    submitButton.disabled = false;
+    submitButton.textContent = "Log in";
+
+    const message = /invalid login credentials|email not confirmed/i.test(String(error?.message || ""))
+      ? "Incorrect email or password, or the email has not been confirmed."
+      : friendlySupabaseError(error, "Login failed. Please try again.");
+    setStatus("loginStatus", message, "error");
+  }
 });
 
 forgotPassword.addEventListener("click", async () => {
   const email = document.getElementById("loginEmail").value.trim();
 
   if (!email || !validEmail(email)) {
-    setStatus(
-      "loginStatus",
-      "Enter a valid email address first.",
-      "error"
-    );
+    setStatus("loginStatus", "Enter a valid email address first.", "error");
     return;
   }
-
   if (!supabase) return;
 
-  const redirectTo = new URL("./reset-password.html", window.location.href).href;
-  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
-
-  setStatus(
-    "loginStatus",
-    error ? error.message : `A password reset link has been sent to ${email}.`,
-    error ? "error" : "success"
-  );
+  try {
+    const redirectTo = new URL("./reset-password.html", window.location.href).href;
+    const { error } = await withTimeout(
+      supabase.auth.resetPasswordForEmail(email, { redirectTo }),
+      15000,
+      "Password reset request"
+    );
+    if (error) throw error;
+    setStatus("loginStatus", `A password reset link has been sent to ${email}.`, "success");
+  } catch (error) {
+    setStatus("loginStatus", friendlySupabaseError(error, "Password reset failed."), "error");
+  }
 });
