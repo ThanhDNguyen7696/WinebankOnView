@@ -4,6 +4,12 @@
   background: var(--cream);
 }
 
+.admin-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .admin-shell {
   width: min(760px, 100%);
   margin: 0 auto;
@@ -134,6 +140,16 @@ button:disabled {
 }
 
 @media (max-width: 520px) {
+  .admin-header-actions {
+    gap: 6px;
+  }
+
+  .admin-header-actions .secondary-button {
+    min-height: 38px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
   .admin-actions {
     flex-direction: column;
   }

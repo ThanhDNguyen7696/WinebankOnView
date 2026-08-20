@@ -11,7 +11,10 @@
 <body>
 <header class="site-header">
   <a class="site-logo" href="./index.html">WINEBANK</a>
-  <a class="secondary-button" href="./food.html">View Food page</a>
+  <nav class="admin-header-actions" aria-label="Admin shortcuts">
+    <a class="secondary-button" href="./member-dashboard.html">My account</a>
+    <a class="secondary-button" href="./food.html">View Food page</a>
+  </nav>
 </header>
 
 <main class="admin-page">
@@ -23,22 +26,6 @@
     <section class="admin-card admin-notice" id="setupNotice" hidden>
       <h2>Supabase setup required</h2>
       <p class="admin-help">Add the project URL and public anon key to <code>JS/supabase-config.js</code>, then run <code>supabase/setup.sql</code> in the Supabase SQL Editor.</p>
-    </section>
-
-    <section class="admin-card" id="adminLoginPanel" hidden>
-      <h2>Admin sign in</h2>
-      <form id="adminLoginForm">
-        <div class="admin-field">
-          <label for="adminEmail">Email address</label>
-          <input id="adminEmail" type="email" autocomplete="username" required />
-        </div>
-        <div class="admin-field">
-          <label for="adminPassword">Password</label>
-          <input id="adminPassword" type="password" autocomplete="current-password" required />
-        </div>
-        <button class="primary-button" type="submit">Sign in</button>
-        <div class="admin-status" id="adminLoginStatus" aria-live="polite"></div>
-      </form>
     </section>
 
     <section class="admin-card" id="menuManagerPanel" hidden>

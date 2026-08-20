@@ -3,14 +3,17 @@ import {
   MENU_BUCKET,
   MENU_PATH
 } from "./supabase-config.js";
-import { supabase, isSupabaseConfigured, authErrorMessage } from "./supabase-client.js";
+import {
+  supabase,
+  isSupabaseConfigured,
+  pageUrl,
+  authErrorMessage,
+  hasAdminAccess
+} from "./supabase-client.js";
 
 const setupNotice = document.getElementById("setupNotice");
-const loginPanel = document.getElementById("adminLoginPanel");
 const menuPanel = document.getElementById("menuManagerPanel");
-const loginForm = document.getElementById("adminLoginForm");
 const uploadForm = document.getElementById("menuUploadForm");
-const loginStatus = document.getElementById("adminLoginStatus");
 const uploadStatus = document.getElementById("menuUploadStatus");
 const currentMenuLink = document.getElementById("currentMenuLink");
 const selectedFile = document.getElementById("selectedFile");
@@ -25,73 +28,29 @@ function publicMenuUrl() {
   return `${SUPABASE_URL}/storage/v1/object/public/${MENU_BUCKET}/${MENU_PATH}`;
 }
 
-function showLoggedOut() {
-  loginPanel.hidden = false;
-  menuPanel.hidden = true;
-}
-
 function showLoggedIn(email) {
-  loginPanel.hidden = true;
   menuPanel.hidden = false;
   document.getElementById("adminIdentity").textContent = email;
   currentMenuLink.href = `${publicMenuUrl()}?v=${Date.now()}`;
 }
 
-async function confirmAdmin(supabase, user) {
-  const { data, error } = await supabase
-    .from("admin_users")
-    .select("user_id")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  return !error && Boolean(data);
-}
-
 if (!isSupabaseConfigured) {
   setupNotice.hidden = false;
-  loginPanel.hidden = true;
 } else {
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (user && await confirmAdmin(supabase, user)) {
-    showLoggedIn(user.email);
-  } else {
-    if (user) await supabase.auth.signOut();
-    showLoggedOut();
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) {
+      window.location.replace(pageUrl("./login.html"));
+    } else if (!await hasAdminAccess(user)) {
+      window.location.replace(pageUrl("./member-dashboard.html"));
+    } else {
+      showLoggedIn(user.email);
+    }
+  } catch (error) {
+    setupNotice.hidden = false;
+    setupNotice.querySelector("h2").textContent = "Unable to verify admin access";
+    setupNotice.querySelector("p").textContent = authErrorMessage(error, "Please try again later.");
   }
-
-  loginForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const submitButton = loginForm.querySelector('button[type="submit"]');
-    submitButton.disabled = true;
-    showStatus(loginStatus, "Signing in…");
-
-    let data;
-    let error;
-    try {
-      ({ data, error } = await supabase.auth.signInWithPassword({
-        email: document.getElementById("adminEmail").value.trim(),
-        password: document.getElementById("adminPassword").value
-      }));
-    } catch (requestError) {
-      error = requestError;
-    }
-
-    submitButton.disabled = false;
-    if (error) {
-      showStatus(loginStatus, authErrorMessage(error, "Unable to sign in."), "error");
-      return;
-    }
-
-    if (!await confirmAdmin(supabase, data.user)) {
-      await supabase.auth.signOut();
-      showStatus(loginStatus, "This account does not have menu administration access.", "error");
-      return;
-    }
-
-    showStatus(loginStatus, "");
-    showLoggedIn(data.user.email);
-  });
 
   document.getElementById("menuFile").addEventListener("change", (event) => {
     const file = event.target.files[0];
@@ -144,6 +103,6 @@ if (!isSupabaseConfigured) {
 
   logoutButton.addEventListener("click", async () => {
     await supabase.auth.signOut();
-    showLoggedOut();
+    window.location.replace(pageUrl("./login.html"));
   });
 }

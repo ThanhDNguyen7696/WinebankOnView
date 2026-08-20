@@ -4,7 +4,13 @@ import {
   setStatus,
   setupPasswordToggles
 } from "./common.js";
-import { supabase, isSupabaseConfigured, pageUrl, authErrorMessage } from "./supabase-client.js";
+import {
+  supabase,
+  isSupabaseConfigured,
+  pageUrl,
+  authErrorMessage,
+  hasAdminAccess
+} from "./supabase-client.js";
 
 setupPasswordToggles();
 
@@ -43,9 +49,14 @@ form.addEventListener("submit", async (event) => {
   submitButton.textContent = "Logging in...";
 
   try {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
-    window.location.replace(pageUrl("./member-dashboard.html"));
+
+    const destination = await hasAdminAccess(data.user)
+      ? "./admin.html"
+      : "./member-dashboard.html";
+
+    window.location.replace(pageUrl(destination));
   } catch (error) {
     setStatus("loginStatus", authErrorMessage(error, "Unable to log in."), "error");
   } finally {

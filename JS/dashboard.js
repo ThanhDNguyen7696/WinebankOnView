@@ -1,4 +1,9 @@
-import { supabase, isSupabaseConfigured, pageUrl } from "./supabase-client.js";
+import {
+  supabase,
+  isSupabaseConfigured,
+  pageUrl,
+  hasAdminAccess
+} from "./supabase-client.js";
 
 if (!isSupabaseConfigured) {
   window.location.replace("./login.html");
@@ -22,6 +27,14 @@ if (!isSupabaseConfigured) {
       metadata.phone || user.phone || "Not provided";
     document.getElementById("membershipStatus").textContent =
       metadata.membership_status || "Pending";
+
+    try {
+      if (await hasAdminAccess(user)) {
+        document.getElementById("adminDashboardLink").hidden = false;
+      }
+    } catch (adminCheckError) {
+      console.error("Unable to verify admin access.", adminCheckError);
+    }
 
     document.getElementById("logoutButton").addEventListener("click", async () => {
       await supabase.auth.signOut();

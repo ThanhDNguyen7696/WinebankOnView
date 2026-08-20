@@ -72,8 +72,23 @@
   font-size: 11px;
 }
 
+.dashboard-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.admin-dashboard-link[hidden] {
+  display: none;
+}
+
 @media (max-width: 760px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
+  }
+
+  .dashboard-actions {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

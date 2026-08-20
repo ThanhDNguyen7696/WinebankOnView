@@ -21,6 +21,19 @@ export function pageUrl(path) {
   return new URL(path, window.location.href).href;
 }
 
+export async function hasAdminAccess(user) {
+  if (!supabase || !user) return false;
+
+  const { data, error } = await supabase
+    .from("admin_users")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (error) throw error;
+  return Boolean(data);
+}
+
 export function authErrorMessage(error, fallback = "The request could not be completed.") {
   if (!error) return fallback;
 
