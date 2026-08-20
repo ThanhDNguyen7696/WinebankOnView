@@ -3,15 +3,20 @@ import { hasVerifiedAge, verifyAge } from './age-verification.js';
 
 const $ = (s) => document.querySelector(s);
 
-const heroSlides = [...document.querySelectorAll('.hero-slide')];
-if (heroSlides.length > 1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+const setupSlideshow = (selector, delay) => {
+  const slides = [...document.querySelectorAll(selector)];
+  if (slides.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
   let activeSlide = 0;
   window.setInterval(() => {
-    heroSlides[activeSlide].classList.remove('is-active');
-    activeSlide = (activeSlide + 1) % heroSlides.length;
-    heroSlides[activeSlide].classList.add('is-active');
-  }, 6500);
-}
+    slides[activeSlide].classList.remove('is-active');
+    activeSlide = (activeSlide + 1) % slides.length;
+    slides[activeSlide].classList.add('is-active');
+  }, delay);
+};
+
+setupSlideshow('.hero-slide', 6500);
+setupSlideshow('.experience-slide', 5500);
 
 if (!hasVerifiedAge()) $('#ageModal').classList.add('show');
 $('#confirmAge').addEventListener('click', () => { verifyAge(); $('#ageModal').classList.remove('show'); });
