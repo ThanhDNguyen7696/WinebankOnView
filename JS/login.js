@@ -1,25 +1,16 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   validEmail,
   setError,
   setStatus,
   setupPasswordToggles
 } from "./common.js";
-import {
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY,
-  hasSupabaseConfig
-} from "./supabase-config.js";
+import { supabase, isSupabaseConfigured, pageUrl, authErrorMessage } from "./supabase-client.js";
 
 setupPasswordToggles();
 
 const form = document.getElementById("loginForm");
 const forgotPassword = document.getElementById("forgotPassword");
-const supabase = hasSupabaseConfig()
-  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
-
-if (!supabase) {
+if (!isSupabaseConfigured) {
   setStatus("loginStatus", "Account login is being configured. Please try again later.", "error");
   form.querySelector('button[type="submit"]').disabled = true;
 } else if (sessionStorage.getItem("winebankSignupSuccess")) {
@@ -51,26 +42,21 @@ form.addEventListener("submit", async (event) => {
   submitButton.disabled = true;
   submitButton.textContent = "Logging in...";
 
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-
-  submitButton.disabled = false;
-  submitButton.textContent = "Log in";
-
-  if (error) {
-    setStatus(
-      "loginStatus",
-      "Incorrect email or password, or the email has not been confirmed.",
-      "error"
-    );
-    return;
+  try {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    window.location.replace(pageUrl("./member-dashboard.html"));
+  } catch (error) {
+    setStatus("loginStatus", authErrorMessage(error, "Unable to log in."), "error");
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = "Log in";
   }
-
-  window.location.href = "./member-dashboard.html";
 });
 
 forgotPassword.addEventListener("click", () => {
   const email = document.getElementById("loginEmail").value.trim();
-  const resetUrl = new URL("./reset-password.html", window.location.href);
+  const resetUrl = new URL(pageUrl("./reset-password.html"));
   if (validEmail(email)) resetUrl.searchParams.set("email", email);
   window.location.href = resetUrl.href;
 });

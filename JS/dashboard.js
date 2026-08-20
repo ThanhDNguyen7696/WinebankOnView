@@ -1,20 +1,13 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import {
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY,
-  hasSupabaseConfig
-} from "./supabase-config.js";
+import { supabase, isSupabaseConfigured, pageUrl } from "./supabase-client.js";
 
-if (!hasSupabaseConfig()) {
+if (!isSupabaseConfigured) {
   window.location.replace("./login.html");
 } else {
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { user }, error } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (error || !user) {
     window.location.replace("./login.html");
   } else {
-    const user = session.user;
     const metadata = user.user_metadata || {};
     const emailName = (user.email || "")
       .split("@")[0]
@@ -32,7 +25,7 @@ if (!hasSupabaseConfig()) {
 
     document.getElementById("logoutButton").addEventListener("click", async () => {
       await supabase.auth.signOut();
-      window.location.replace("./login.html");
+      window.location.replace(pageUrl("./login.html"));
     });
   }
 }

@@ -1,10 +1,8 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { SUPABASE_URL, SUPABASE_ANON_KEY, hasSupabaseConfig } from "./supabase-config.js";
+import { supabase, isSupabaseConfigured } from "./supabase-client.js";
 
 const navCta = document.querySelector(".nav-cta");
 
-if (navCta && hasSupabaseConfig()) {
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+if (navCta && isSupabaseConfigured) {
   const { data: { session } } = await supabase.auth.getSession();
 
   if (session) {
