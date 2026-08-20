@@ -8,8 +8,7 @@ import {
   supabase,
   isSupabaseConfigured,
   pageUrl,
-  authErrorMessage,
-  hasAdminAccess
+  authErrorMessage
 } from "./supabase-client.js";
 
 setupPasswordToggles();
@@ -49,14 +48,9 @@ form.addEventListener("submit", async (event) => {
   submitButton.textContent = "Logging in...";
 
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
-
-    const destination = await hasAdminAccess(data.user)
-      ? "./admin.html"
-      : "./member-dashboard.html";
-
-    window.location.replace(pageUrl(destination));
+    window.location.replace(pageUrl("./member-dashboard.html"));
   } catch (error) {
     setStatus("loginStatus", authErrorMessage(error, "Unable to log in."), "error");
   } finally {
