@@ -1,11 +1,9 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   SUPABASE_URL,
-  SUPABASE_ANON_KEY,
   MENU_BUCKET,
-  MENU_PATH,
-  hasSupabaseConfig
+  MENU_PATH
 } from "./supabase-config.js";
+import { supabase, isSupabaseConfigured, authErrorMessage } from "./supabase-client.js";
 
 const setupNotice = document.getElementById("setupNotice");
 const loginPanel = document.getElementById("adminLoginPanel");
@@ -49,17 +47,16 @@ async function confirmAdmin(supabase, user) {
   return !error && Boolean(data);
 }
 
-if (!hasSupabaseConfig()) {
+if (!isSupabaseConfigured) {
   setupNotice.hidden = false;
   loginPanel.hidden = true;
 } else {
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { user } } = await supabase.auth.getUser();
 
-  if (session && await confirmAdmin(supabase, session.user)) {
-    showLoggedIn(session.user.email);
+  if (user && await confirmAdmin(supabase, user)) {
+    showLoggedIn(user.email);
   } else {
-    if (session) await supabase.auth.signOut();
+    if (user) await supabase.auth.signOut();
     showLoggedOut();
   }
 
@@ -69,14 +66,20 @@ if (!hasSupabaseConfig()) {
     submitButton.disabled = true;
     showStatus(loginStatus, "Signing in…");
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email: document.getElementById("adminEmail").value.trim(),
-      password: document.getElementById("adminPassword").value
-    });
+    let data;
+    let error;
+    try {
+      ({ data, error } = await supabase.auth.signInWithPassword({
+        email: document.getElementById("adminEmail").value.trim(),
+        password: document.getElementById("adminPassword").value
+      }));
+    } catch (requestError) {
+      error = requestError;
+    }
 
     submitButton.disabled = false;
     if (error) {
-      showStatus(loginStatus, error.message, "error");
+      showStatus(loginStatus, authErrorMessage(error, "Unable to sign in."), "error");
       return;
     }
 
@@ -129,7 +132,7 @@ if (!hasSupabaseConfig()) {
     submitButton.textContent = "Publish new menu";
 
     if (error) {
-      showStatus(uploadStatus, error.message, "error");
+      showStatus(uploadStatus, authErrorMessage(error, "Unable to upload the menu."), "error");
       return;
     }
 

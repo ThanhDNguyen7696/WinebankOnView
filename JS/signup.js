@@ -1,4 +1,3 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import {
   validEmail,
   validAustralianPhone,
@@ -6,20 +5,12 @@ import {
   setStatus,
   setupPasswordToggles
 } from "./common.js";
-import {
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY,
-  hasSupabaseConfig
-} from "./supabase-config.js";
+import { supabase, isSupabaseConfigured, pageUrl, authErrorMessage } from "./supabase-client.js";
 
 setupPasswordToggles();
 
 const form = document.getElementById("signupForm");
-const supabase = hasSupabaseConfig()
-  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
-
-if (!supabase) {
+if (!isSupabaseConfigured) {
   setStatus("signupStatus", "Account registration is being configured. Please try again later.", "error");
   form.querySelector('button[type="submit"]').disabled = true;
 }
@@ -91,40 +82,38 @@ form.addEventListener("submit", async (event) => {
   submitButton.disabled = true;
   submitButton.textContent = "Creating account...";
 
-  const { data: result, error } = await supabase.auth.signUp({
-    email: data.email,
-    password: data.password,
-    options: {
-      data: {
-        first_name: data.firstName,
-        last_name: data.lastName,
-        phone: data.phone,
-        age_confirmed: data.ageConfirmed,
-        terms_accepted: data.termsAccepted,
-        marketing_consent: data.marketingConsent,
-        marketing_consent_at: data.marketingConsent ? new Date().toISOString() : null
+  try {
+    const { data: result, error } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: {
+        emailRedirectTo: pageUrl("./confirm-email.html"),
+        data: {
+          first_name: data.firstName,
+          last_name: data.lastName,
+          phone: data.phone,
+          age_confirmed: data.ageConfirmed,
+          terms_accepted: data.termsAccepted,
+          marketing_consent: data.marketingConsent,
+          marketing_consent_at: data.marketingConsent ? new Date().toISOString() : null
+        }
       }
-    }
-  });
+    });
 
-  if (error) {
+    if (error) throw error;
+
+    form.reset();
+    if (result.session) {
+      setStatus("signupStatus", "Account created. Redirecting to your dashboard…", "success");
+      window.setTimeout(() => window.location.replace(pageUrl("./member-dashboard.html")), 1000);
+      return;
+    }
+
+    setStatus("signupStatus", `We sent a confirmation link to ${data.email}. Confirm your email before signing in.`, "success");
+  } catch (error) {
+    setStatus("signupStatus", authErrorMessage(error, "Unable to create the account."), "error");
+  } finally {
     submitButton.disabled = false;
     submitButton.textContent = "Create account";
-    setStatus("signupStatus", error.message, "error");
-    return;
   }
-
-  if (result.session) {
-    await supabase.auth.signOut();
-  }
-
-  submitButton.disabled = false;
-  submitButton.textContent = "Create account";
-  form.reset();
-  setStatus("signupStatus", "Account created successfully. Redirecting to login…", "success");
-
-  sessionStorage.setItem("winebankSignupSuccess", "1");
-  window.setTimeout(() => {
-    window.location.href = "./login.html";
-  }, 1500);
 });

@@ -1,32 +1,32 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { validEmail, setError, setStatus, setupPasswordToggles } from "./common.js";
-import {
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY,
-  hasSupabaseConfig
-} from "./supabase-config.js";
+import { supabase, isSupabaseConfigured, pageUrl, authErrorMessage } from "./supabase-client.js";
 
 setupPasswordToggles();
 
-const form = document.getElementById("resetPasswordForm");
+const passwordForm = document.getElementById("resetPasswordForm");
 const requestForm = document.getElementById("requestResetForm");
 const requestPanel = document.getElementById("requestResetPanel");
-const supabase = hasSupabaseConfig()
-  ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-  : null;
+const params = new URLSearchParams(window.location.search);
+const recoveryLink = params.get("type") === "recovery" ||
+  new URLSearchParams(window.location.hash.slice(1)).get("type") === "recovery";
 
-if (!supabase) {
+function showPasswordForm() {
+  requestPanel.hidden = true;
+  passwordForm.hidden = false;
+}
+
+if (!isSupabaseConfigured) {
   setStatus("requestResetStatus", "Password reset is being configured.", "error");
   requestForm.querySelector('button[type="submit"]').disabled = true;
 } else {
-  document.getElementById("resetEmail").value =
-    new URLSearchParams(window.location.search).get("email") || "";
+  document.getElementById("resetEmail").value = params.get("email") || "";
+
+  supabase.auth.onAuthStateChange((event) => {
+    if (event === "PASSWORD_RECOVERY") showPasswordForm();
+  });
 
   const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    requestPanel.hidden = true;
-    form.hidden = false;
-  }
+  if (recoveryLink && session) showPasswordForm();
 }
 
 requestForm.addEventListener("submit", async (event) => {
@@ -44,19 +44,25 @@ requestForm.addEventListener("submit", async (event) => {
   const button = requestForm.querySelector('button[type="submit"]');
   button.disabled = true;
   button.textContent = "Sending…";
-  const redirectTo = new URL("./reset-password.html", window.location.href).href;
-  const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo });
+  let error;
+  try {
+    ({ error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: pageUrl("./reset-password.html?type=recovery")
+    }));
+  } catch (requestError) {
+    error = requestError;
+  }
   button.disabled = false;
   button.textContent = "Send reset link";
 
   setStatus(
     "requestResetStatus",
-    error ? error.message : `A password reset link has been sent to ${email}.`,
+    error ? authErrorMessage(error, "Unable to send the reset link.") : `If an account exists for ${email}, a reset link has been sent.`,
     error ? "error" : "success"
   );
 });
 
-form.addEventListener("submit", async (event) => {
+passwordForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const password = document.getElementById("newPassword").value;
@@ -78,18 +84,24 @@ form.addEventListener("submit", async (event) => {
   setError("confirmNewPassword", "confirmNewPasswordError", confirmationError);
   if (passwordError || confirmationError || !supabase) return;
 
-  const button = form.querySelector('button[type="submit"]');
+  const button = passwordForm.querySelector('button[type="submit"]');
   button.disabled = true;
   button.textContent = "Saving…";
-  const { error } = await supabase.auth.updateUser({ password });
+  let error;
+  try {
+    ({ error } = await supabase.auth.updateUser({ password }));
+  } catch (requestError) {
+    error = requestError;
+  }
   button.disabled = false;
   button.textContent = "Save new password";
 
   if (error) {
-    setStatus("resetPasswordStatus", error.message, "error");
+    setStatus("resetPasswordStatus", authErrorMessage(error, "Unable to update the password."), "error");
     return;
   }
 
-  setStatus("resetPasswordStatus", "Password updated. Redirecting to your dashboard…", "success");
-  window.setTimeout(() => window.location.replace("./member-dashboard.html"), 1200);
+  await supabase.auth.signOut();
+  setStatus("resetPasswordStatus", "Password updated. Redirecting to login…", "success");
+  window.setTimeout(() => window.location.replace(pageUrl("./login.html")), 1000);
 });
