@@ -4,11 +4,54 @@
     display:flex;
     align-items:center;
     padding:70px 7%;
-    background-image:linear-gradient(90deg,rgba(18,7,10,.94) 0%,rgba(18,7,10,.78) 38%,rgba(18,7,10,.18) 72%,rgba(18,7,10,.08) 100%),url("../assets/images/winebank-hero.png");
-    background-position:center;
-    background-size:cover;
+    background:#18090d;
     color:#fff;
     overflow:hidden
+}
+
+.hero:after {
+    content:"";
+    position:absolute;
+    inset:0;
+    z-index:1;
+    background:linear-gradient(90deg,rgba(18,7,10,.94) 0%,rgba(18,7,10,.78) 38%,rgba(18,7,10,.25) 72%,rgba(18,7,10,.12) 100%);
+    pointer-events:none
+}
+
+.hero-media,.hero-slide {
+    position:absolute;
+    inset:0
+}
+
+.hero-media {
+    z-index:0
+}
+
+.hero-slide {
+    background-position:center;
+    background-size:cover;
+    opacity:0;
+    transform:scale(1.025);
+    transition:opacity 1.4s ease,transform 7s ease
+}
+
+.hero-slide.is-active {
+    opacity:1;
+    transform:scale(1)
+}
+
+.hero-slide--front {
+    background-image:url("../assets/images/winebank-front.jpg")
+}
+
+.hero-slide--pillars {
+    background-image:url("../assets/images/winebank-pillars.webp");
+    background-position:center 42%
+}
+
+.hero-slide--wine {
+    background-image:url("../assets/images/winebank-dessert-wine.jpg");
+    background-position:center 46%
 }
 
 .hero-content {
@@ -648,9 +691,23 @@
 @media(max-width:650px) {
 .hero {
         min-height:720px;
-        padding:60px 6%;
-        background-image:linear-gradient(90deg,rgba(18,7,10,.94),rgba(18,7,10,.72)),url("../assets/images/winebank-hero.png");
-        background-position:68% center
+        padding:60px 6%
+    }
+
+.hero:after {
+        background:linear-gradient(90deg,rgba(18,7,10,.94),rgba(18,7,10,.66))
+    }
+
+.hero-slide--front {
+        background-position:center
+    }
+
+.hero-slide--pillars {
+        background-position:62% center
+    }
+
+.hero-slide--wine {
+        background-position:58% center
     }
 
 .hero h1 {
@@ -700,4 +757,11 @@
         padding-bottom:70px
     }
 
+}
+
+@media(prefers-reduced-motion:reduce) {
+.hero-slide {
+        transition:none;
+        transform:none
+    }
 }

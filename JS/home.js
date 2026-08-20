@@ -3,6 +3,16 @@ import { hasVerifiedAge, verifyAge } from './age-verification.js';
 
 const $ = (s) => document.querySelector(s);
 
+const heroSlides = [...document.querySelectorAll('.hero-slide')];
+if (heroSlides.length > 1 && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  let activeSlide = 0;
+  window.setInterval(() => {
+    heroSlides[activeSlide].classList.remove('is-active');
+    activeSlide = (activeSlide + 1) % heroSlides.length;
+    heroSlides[activeSlide].classList.add('is-active');
+  }, 6500);
+}
+
 if (!hasVerifiedAge()) $('#ageModal').classList.add('show');
 $('#confirmAge').addEventListener('click', () => { verifyAge(); $('#ageModal').classList.remove('show'); });
 $('#denyAge').addEventListener('click', () => { $('#ageModal .modal-card').innerHTML = '<h2>Thanks for being honest.</h2><p>This website is intended for adults aged 18 and over.</p>'; });
