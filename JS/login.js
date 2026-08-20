@@ -4,7 +4,12 @@ import {
   setStatus,
   setupPasswordToggles
 } from "./common.js";
-import { supabase, isSupabaseConfigured, pageUrl, authErrorMessage } from "./supabase-client.js";
+import {
+  supabase,
+  isSupabaseConfigured,
+  pageUrl,
+  authErrorMessage
+} from "./supabase-client.js";
 
 setupPasswordToggles();
 
