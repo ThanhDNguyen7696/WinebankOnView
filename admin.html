@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>Menu administration | Wine Bank on View</title>
+  <title>Website administration | Wine Bank on View</title>
   <link rel="stylesheet" href="./css/global.css" />
   <link rel="stylesheet" href="./css/admin.css" />
 </head>
@@ -13,6 +13,7 @@
   <a class="site-logo" href="./index.html">WINEBANK</a>
   <nav class="admin-header-actions" aria-label="Admin shortcuts">
     <a class="secondary-button" href="./member-dashboard.html">My account</a>
+    <a class="secondary-button" href="./cellar.html">View Cellar</a>
     <a class="secondary-button" href="./food.html">View Food page</a>
   </nav>
 </header>
@@ -20,8 +21,8 @@
 <main class="admin-page">
   <div class="admin-shell">
     <p class="admin-eyebrow">Private administration</p>
-    <h1>Food menu</h1>
-    <p class="admin-intro">Publish a replacement dining menu without editing the website or using GitHub. The Food page updates as soon as the PDF upload succeeds.</p>
+    <h1>Website administration</h1>
+    <p class="admin-intro">Manage the dining menu and the published WineBank cellar without editing the website or using GitHub.</p>
 
     <section class="admin-card admin-notice" id="setupNotice" hidden>
       <h2>Supabase setup required</h2>
@@ -47,6 +48,89 @@
         </div>
         <div class="admin-status" id="menuUploadStatus" aria-live="polite"></div>
       </form>
+    </section>
+
+    <section class="admin-card admin-cellar" id="cellarManagerPanel" hidden>
+      <div class="admin-section-heading">
+        <div>
+          <p class="admin-eyebrow">The Cellar</p>
+          <h2>Manage wines</h2>
+          <p class="admin-help">Add a bottle, update its details, replace its image or hide it from the public Cellar.</p>
+        </div>
+        <a class="secondary-button" href="./cellar.html" target="_blank" rel="noopener">Preview Cellar</a>
+      </div>
+
+      <form id="wineForm">
+        <input id="wineId" type="hidden" />
+        <input id="currentWineImage" type="hidden" />
+
+        <div class="admin-form-grid">
+          <div class="admin-field admin-field--wide">
+            <label for="wineName">Wine name</label>
+            <input id="wineName" type="text" maxlength="120" required />
+          </div>
+
+          <div class="admin-field">
+            <label for="wineRegion">Region</label>
+            <input id="wineRegion" type="text" maxlength="120" required />
+          </div>
+
+          <div class="admin-field">
+            <label for="wineVintage">Vintage</label>
+            <input id="wineVintage" type="text" maxlength="12" value="NV" required />
+          </div>
+
+          <div class="admin-field">
+            <label for="winePrice">Price (AUD)</label>
+            <input id="winePrice" type="number" min="0" step="0.01" required />
+          </div>
+
+          <div class="admin-field">
+            <label for="wineType">Wine type</label>
+            <select id="wineType" required>
+              <option value="red">Red</option>
+              <option value="white">White</option>
+              <option value="sparkling">Sparkling</option>
+              <option value="rose">Rosé</option>
+              <option value="dessert">Dessert</option>
+            </select>
+          </div>
+
+          <div class="admin-field">
+            <label for="wineOrder">Display order</label>
+            <input id="wineOrder" type="number" min="0" step="1" value="0" required />
+          </div>
+
+          <div class="admin-field admin-field--wide">
+            <label for="wineDescription">Description</label>
+            <textarea id="wineDescription" rows="4" maxlength="1000"></textarea>
+          </div>
+
+          <div class="admin-field admin-file admin-field--wide">
+            <label for="wineImage">Product image</label>
+            <input id="wineImage" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" />
+            <span class="admin-file-meta" id="selectedWineImage">Choose a JPG, PNG or WebP image, maximum 5 MB.</span>
+          </div>
+
+          <label class="admin-check admin-field--wide">
+            <input id="winePublished" type="checkbox" checked />
+            <span>Publish this wine on the Cellar page</span>
+          </label>
+        </div>
+
+        <div class="admin-actions">
+          <button class="primary-button" id="saveWineButton" type="submit">Add wine</button>
+          <button class="secondary-button" id="cancelWineEdit" type="button" hidden>Cancel editing</button>
+        </div>
+        <div class="admin-status" id="wineFormStatus" aria-live="polite"></div>
+      </form>
+
+      <div class="admin-wine-list-heading">
+        <h3>Current cellar</h3>
+        <button class="admin-text-button" id="refreshWines" type="button">Refresh</button>
+      </div>
+      <div class="admin-status" id="wineListStatus" aria-live="polite"></div>
+      <div class="admin-wine-list" id="wineList"></div>
     </section>
   </div>
 </main>

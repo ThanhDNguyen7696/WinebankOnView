@@ -215,6 +215,22 @@
     letter-spacing:.15em
 }
 
+.product-art-image {
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    padding:22px;
+    object-fit:contain;
+    background:#f4efe6
+}
+
+.product-art>span {
+    z-index:2;
+    padding:5px 8px;
+    background:rgba(31,12,17,.72)
+}
+
 .bottle {
     width:72px;
     height:205px;
@@ -569,7 +585,14 @@
 }
 
 .cart-thumb {
-    height:80px
+    height:80px;
+    overflow:hidden
+}
+
+.cart-thumb-image {
+    width:100%;
+    height:100%;
+    object-fit:cover
 }
 
 .cart-item h3 {
