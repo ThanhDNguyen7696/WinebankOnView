@@ -34,7 +34,7 @@
         <span class="admin-identity">Signed in as <strong id="adminIdentity"></strong></span>
         <button id="adminLogout" type="button">Sign out</button>
       </div>
-      <h2>Publish a new menu</h2>
+      <h2>Publish dining menu</h2>
       <p class="admin-help">PDF only, maximum file size 10 MB. Publishing replaces the current menu immediately.</p>
       <form id="menuUploadForm">
         <div class="admin-field admin-file">
@@ -47,6 +47,23 @@
           <a class="secondary-button" id="currentMenuLink" href="#" target="_blank" rel="noopener">Preview current menu</a>
         </div>
         <div class="admin-status" id="menuUploadStatus" aria-live="polite"></div>
+      </form>
+
+      <div class="admin-menu-divider"></div>
+
+      <h2>Publish pizza menu</h2>
+      <p class="admin-help">PDF only, maximum file size 10 MB. Publishing replaces the current pizza menu immediately.</p>
+      <form id="pizzaMenuUploadForm">
+        <div class="admin-field admin-file">
+          <label for="pizzaMenuFile">Choose pizza menu PDF</label>
+          <input id="pizzaMenuFile" type="file" accept="application/pdf,.pdf" required />
+          <span class="admin-file-meta" id="selectedPizzaMenuFile">No file selected</span>
+        </div>
+        <div class="admin-actions">
+          <button class="primary-button" type="submit">Publish pizza menu</button>
+          <a class="secondary-button" id="currentPizzaMenuLink" href="#" target="_blank" rel="noopener">Preview current pizza menu</a>
+        </div>
+        <div class="admin-status" id="pizzaMenuUploadStatus" aria-live="polite"></div>
       </form>
     </section>
 

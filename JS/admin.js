@@ -1,7 +1,8 @@
 import {
   SUPABASE_URL,
   MENU_BUCKET,
-  MENU_PATH
+  MENU_PATH,
+  PIZZA_MENU_PATH
 } from "./supabase-config.js";
 import {
   supabase,
@@ -18,6 +19,10 @@ const uploadForm = document.getElementById("menuUploadForm");
 const uploadStatus = document.getElementById("menuUploadStatus");
 const currentMenuLink = document.getElementById("currentMenuLink");
 const selectedFile = document.getElementById("selectedFile");
+const pizzaUploadForm = document.getElementById("pizzaMenuUploadForm");
+const pizzaUploadStatus = document.getElementById("pizzaMenuUploadStatus");
+const currentPizzaMenuLink = document.getElementById("currentPizzaMenuLink");
+const selectedPizzaMenuFile = document.getElementById("selectedPizzaMenuFile");
 const logoutButton = document.getElementById("adminLogout");
 const wineForm = document.getElementById("wineForm");
 const wineFormStatus = document.getElementById("wineFormStatus");
@@ -38,8 +43,8 @@ function showStatus(element, message, type = "") {
   element.className = `admin-status${type ? ` ${type}` : ""}`;
 }
 
-function publicMenuUrl() {
-  return `${SUPABASE_URL}/storage/v1/object/public/${MENU_BUCKET}/${MENU_PATH}`;
+function publicMenuUrl(path = MENU_PATH) {
+  return `${SUPABASE_URL}/storage/v1/object/public/${MENU_BUCKET}/${path}`;
 }
 
 function showLoggedIn(email) {
@@ -47,7 +52,53 @@ function showLoggedIn(email) {
   cellarPanel.hidden = false;
   document.getElementById("adminIdentity").textContent = email;
   currentMenuLink.href = `${publicMenuUrl()}?v=${Date.now()}`;
+  currentPizzaMenuLink.href = `${publicMenuUrl(PIZZA_MENU_PATH)}?v=${Date.now()}`;
   loadWines();
+}
+
+function validatePdf(file) {
+  if (!file) return "Choose a PDF before publishing.";
+  if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+    return "Only PDF menu files are accepted.";
+  }
+  if (file.size > 10 * 1024 * 1024) return "The PDF must be smaller than 10 MB.";
+  return "";
+}
+
+async function publishMenu({ form, fileInput, status, path, previewLink, label }) {
+  const file = fileInput.files[0];
+  const validationError = validatePdf(file);
+  const submitButton = form.querySelector('button[type="submit"]');
+
+  if (validationError) {
+    showStatus(status, validationError, "error");
+    return false;
+  }
+
+  submitButton.disabled = true;
+  submitButton.textContent = "Publishing…";
+  showStatus(status, `Uploading the new ${label.toLowerCase()}…`);
+
+  const { error } = await supabase.storage
+    .from(MENU_BUCKET)
+    .upload(path, file, {
+      contentType: "application/pdf",
+      cacheControl: "60",
+      upsert: true
+    });
+
+  submitButton.disabled = false;
+  submitButton.textContent = `Publish ${label.toLowerCase()}`;
+
+  if (error) {
+    showStatus(status, authErrorMessage(error, `Unable to upload the ${label.toLowerCase()}.`), "error");
+    return false;
+  }
+
+  previewLink.href = `${publicMenuUrl(path)}?v=${Date.now()}`;
+  form.reset();
+  showStatus(status, `The new ${label.toLowerCase()} is now live.`, "success");
+  return true;
 }
 
 function escapeHtml(value) {
@@ -208,46 +259,33 @@ if (!isSupabaseConfigured) {
 
   uploadForm.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const file = document.getElementById("menuFile").files[0];
-    const submitButton = uploadForm.querySelector('button[type="submit"]');
+    const published = await publishMenu({
+      form: uploadForm,
+      fileInput: document.getElementById("menuFile"),
+      status: uploadStatus,
+      path: MENU_PATH,
+      previewLink: currentMenuLink,
+      label: "Dining menu"
+    });
+    if (published) selectedFile.textContent = "No file selected";
+  });
 
-    if (!file) {
-      showStatus(uploadStatus, "Choose a PDF before publishing.", "error");
-      return;
-    }
-    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
-      showStatus(uploadStatus, "Only PDF menu files are accepted.", "error");
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      showStatus(uploadStatus, "The PDF must be smaller than 10 MB.", "error");
-      return;
-    }
+  document.getElementById("pizzaMenuFile").addEventListener("change", (event) => {
+    const file = event.target.files[0];
+    selectedPizzaMenuFile.textContent = file ? `${file.name} · ${(file.size / 1024 / 1024).toFixed(2)} MB` : "No file selected";
+  });
 
-    submitButton.disabled = true;
-    submitButton.textContent = "Publishing…";
-    showStatus(uploadStatus, "Uploading the new menu…");
-
-    const { error } = await supabase.storage
-      .from(MENU_BUCKET)
-      .upload(MENU_PATH, file, {
-        contentType: "application/pdf",
-        cacheControl: "60",
-        upsert: true
-      });
-
-    submitButton.disabled = false;
-    submitButton.textContent = "Publish new menu";
-
-    if (error) {
-      showStatus(uploadStatus, authErrorMessage(error, "Unable to upload the menu."), "error");
-      return;
-    }
-
-    currentMenuLink.href = `${publicMenuUrl()}?v=${Date.now()}`;
-    uploadForm.reset();
-    selectedFile.textContent = "No file selected";
-    showStatus(uploadStatus, "The new dining menu is now live.", "success");
+  pizzaUploadForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const published = await publishMenu({
+      form: pizzaUploadForm,
+      fileInput: document.getElementById("pizzaMenuFile"),
+      status: pizzaUploadStatus,
+      path: PIZZA_MENU_PATH,
+      previewLink: currentPizzaMenuLink,
+      label: "Pizza menu"
+    });
+    if (published) selectedPizzaMenuFile.textContent = "No file selected";
   });
 
   logoutButton.addEventListener("click", async () => {
