@@ -37,6 +37,7 @@ export const SUPABASE_ANON_KEY = ${JSON.stringify(anonKey)};
 
 export const MENU_BUCKET = "menus";
 export const MENU_PATH = "food/current-menu.pdf";
+export const PIZZA_MENU_PATH = "food/current-pizza-menu.pdf";
 
 export function hasSupabaseConfig() {
   return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
