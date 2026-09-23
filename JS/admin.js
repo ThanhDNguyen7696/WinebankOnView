@@ -11,9 +11,13 @@ import {
   authErrorMessage,
   hasAdminAccess
 } from "./supabase-client.js";
+import { initMembershipAdmin } from "./memberships-admin.js";
 
 const setupNotice = document.getElementById("setupNotice");
+const adminOverview = document.getElementById("adminOverview");
+const adminSession = document.getElementById("adminSession");
 const menuPanel = document.getElementById("menuManagerPanel");
+const membershipPanel = document.getElementById("membershipManagerPanel");
 const cellarPanel = document.getElementById("cellarManagerPanel");
 const uploadForm = document.getElementById("menuUploadForm");
 const uploadStatus = document.getElementById("menuUploadStatus");
@@ -37,6 +41,8 @@ const WINE_IMAGE_LIMIT = 5 * 1024 * 1024;
 const WINE_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
 let wines = [];
+let winesLoaded = false;
+let lastModalTrigger = null;
 
 function showStatus(element, message, type = "") {
   element.textContent = message;
@@ -48,12 +54,38 @@ function publicMenuUrl(path = MENU_PATH) {
 }
 
 function showLoggedIn(email) {
-  menuPanel.hidden = false;
-  cellarPanel.hidden = false;
+  adminOverview.hidden = false;
+  adminSession.hidden = false;
   document.getElementById("adminIdentity").textContent = email;
   currentMenuLink.href = `${publicMenuUrl()}?v=${Date.now()}`;
   currentPizzaMenuLink.href = `${publicMenuUrl(PIZZA_MENU_PATH)}?v=${Date.now()}`;
-  loadWines();
+}
+
+function showOverview() {
+  membershipPanel.hidden = true;
+  cellarPanel.hidden = true;
+  adminOverview.hidden = false;
+  adminOverview.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function showWorkspace(panel) {
+  adminOverview.hidden = true;
+  membershipPanel.hidden = panel !== membershipPanel;
+  cellarPanel.hidden = panel !== cellarPanel;
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function openMenuModal(trigger) {
+  lastModalTrigger = trigger;
+  menuPanel.hidden = false;
+  document.body.classList.add("admin-modal-open");
+  document.getElementById("closeMenuManager").focus();
+}
+
+function closeMenuModal() {
+  menuPanel.hidden = true;
+  document.body.classList.remove("admin-modal-open");
+  lastModalTrigger?.focus();
 }
 
 function validatePdf(file) {
@@ -256,6 +288,33 @@ if (!isSupabaseConfigured) {
     const file = event.target.files[0];
     selectedFile.textContent = file ? `${file.name} · ${(file.size / 1024 / 1024).toFixed(2)} MB` : "No file selected";
   });
+
+  document.getElementById("openMenuManager").addEventListener("click", (event) => {
+    openMenuModal(event.currentTarget);
+  });
+
+  menuPanel.querySelectorAll("[data-close-menu-modal]").forEach((button) => {
+    button.addEventListener("click", closeMenuModal);
+  });
+  document.getElementById("closeMenuManager").addEventListener("click", closeMenuModal);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !menuPanel.hidden) closeMenuModal();
+  });
+
+  document.getElementById("openMembershipManager").addEventListener("click", () => {
+    initMembershipAdmin();
+    showWorkspace(membershipPanel);
+  });
+  document.getElementById("backFromMemberships").addEventListener("click", showOverview);
+
+  document.getElementById("openCellarManager").addEventListener("click", async () => {
+    showWorkspace(cellarPanel);
+    if (!winesLoaded) {
+      winesLoaded = true;
+      await loadWines();
+    }
+  });
+  document.getElementById("backFromCellar").addEventListener("click", showOverview);
 
   uploadForm.addEventListener("submit", async (event) => {
     event.preventDefault();

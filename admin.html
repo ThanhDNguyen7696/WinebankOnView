@@ -10,11 +10,10 @@
 </head>
 <body>
 <header class="site-header">
-  <a class="site-logo" href="./index.html">WINEBANK</a>
+  <a class="site-logo" href="./index.html">WINEBANK On View</a>
   <nav class="admin-header-actions" aria-label="Admin shortcuts">
     <a class="secondary-button" href="./member-dashboard.html">My account</a>
-    <a class="secondary-button" href="./cellar.html">View Cellar</a>
-    <a class="secondary-button" href="./food.html">View Food page</a>
+    <button class="secondary-button" id="adminLogout" type="button">Sign out</button>
   </nav>
 </header>
 
@@ -22,54 +21,104 @@
   <div class="admin-shell">
     <p class="admin-eyebrow">Private administration</p>
     <h1>Website administration</h1>
-    <p class="admin-intro">Manage the dining menu and the published WineBank cellar without editing the website or using GitHub.</p>
+    <p class="admin-intro">Welcome back. Manage website content, customers and the WineBank cellar from one place.</p>
+    <p class="admin-session" id="adminSession" hidden>Signed in as <strong id="adminIdentity"></strong></p>
 
     <section class="admin-card admin-notice" id="setupNotice" hidden>
       <h2>Supabase setup required</h2>
       <p class="admin-help">Add the project URL and public anon key to <code>JS/supabase-config.js</code>, then run <code>supabase/setup.sql</code> in the Supabase SQL Editor.</p>
     </section>
 
-    <section class="admin-card" id="menuManagerPanel" hidden>
-      <div class="admin-topline">
-        <span class="admin-identity">Signed in as <strong id="adminIdentity"></strong></span>
-        <button id="adminLogout" type="button">Sign out</button>
+    <section class="admin-overview" id="adminOverview" hidden aria-label="Administration tools">
+      <article class="admin-feature-card">
+        <div class="admin-feature-icon" aria-hidden="true">▤</div>
+        <div class="admin-feature-content">
+          <p class="admin-eyebrow">Website content</p>
+          <h2>Menu Publishing</h2>
+          <p>Update the dining and pizza PDF menus shown on the Food page.</p>
+          <button class="primary-button" id="openMenuManager" type="button">Manage menus</button>
+        </div>
+      </article>
+
+      <article class="admin-feature-card">
+        <div class="admin-feature-icon" aria-hidden="true">♙</div>
+        <div class="admin-feature-content">
+          <p class="admin-eyebrow">Customers</p>
+          <h2>Membership &amp; Customers</h2>
+          <p>Search customers, manage membership dates, and import or export CSV records.</p>
+          <button class="primary-button" id="openMembershipManager" type="button">Manage customers</button>
+        </div>
+      </article>
+
+      <article class="admin-feature-card">
+        <div class="admin-feature-icon" aria-hidden="true">♢</div>
+        <div class="admin-feature-content">
+          <p class="admin-eyebrow">Wine collection</p>
+          <h2>Cellar Management</h2>
+          <p>Add and update wines, product details, prices and cellar images.</p>
+          <button class="primary-button" id="openCellarManager" type="button">Manage cellar</button>
+        </div>
+      </article>
+
+      <article class="admin-feature-card admin-quick-links">
+        <div class="admin-feature-icon" aria-hidden="true">↗</div>
+        <div class="admin-feature-content">
+          <p class="admin-eyebrow">Website</p>
+          <h2>Quick Links</h2>
+          <p>Open the key pages on the live website.</p>
+          <nav aria-label="Website preview links">
+            <a href="./food.html" target="_blank" rel="noopener">Food page <span>→</span></a>
+            <a href="./cellar.html" target="_blank" rel="noopener">Cellar page <span>→</span></a>
+            <a href="./member-dashboard.html">Member account <span>→</span></a>
+          </nav>
+        </div>
+      </article>
+    </section>
+
+    <section class="admin-card admin-memberships" id="membershipManagerPanel" hidden>
+      <div class="admin-section-heading">
+        <div>
+          <button class="admin-back-button" id="backFromMemberships" type="button">← Dashboard</button>
+          <p class="admin-eyebrow">Membership</p>
+          <h2>Manage members</h2>
+          <p class="admin-help">Review website accounts, activate memberships, update dates and renew access for one year.</p>
+        </div>
+        <div class="admin-actions">
+          <button class="secondary-button" id="exportMemberships" type="button" disabled>Export members CSV</button>
+          <button class="secondary-button" id="refreshMemberships" type="button">Refresh members</button>
+        </div>
       </div>
-      <h2>Publish dining menu</h2>
-      <p class="admin-help">PDF only, maximum file size 10 MB. Publishing replaces the current menu immediately.</p>
-      <form id="menuUploadForm">
+
+      <div class="admin-membership-tools">
+        <div class="admin-field">
+          <label for="membershipSearch">Search members</label>
+          <input id="membershipSearch" type="search" placeholder="Name, email or phone" />
+        </div>
+        <div class="admin-membership-summary" id="membershipSummary">Loading membership records…</div>
+      </div>
+
+      <details class="admin-import-panel">
+        <summary>Import existing members from CSV</summary>
+        <p class="admin-help">All customer rows will be prepared. Customer data remains on this device until you select Import customers.</p>
         <div class="admin-field admin-file">
-          <label for="menuFile">Choose dining menu PDF</label>
-          <input id="menuFile" type="file" accept="application/pdf,.pdf" required />
-          <span class="admin-file-meta" id="selectedFile">No file selected</span>
+          <label for="membershipCsv">Choose customers.csv</label>
+          <input id="membershipCsv" type="file" accept=".csv,text/csv" />
+          <span class="admin-file-meta" id="membershipCsvMeta">No file selected</span>
         </div>
         <div class="admin-actions">
-          <button class="primary-button" type="submit">Publish new menu</button>
-          <a class="secondary-button" id="currentMenuLink" href="#" target="_blank" rel="noopener">Preview current menu</a>
+          <button class="primary-button" id="importMemberships" type="button" disabled>Import customers</button>
         </div>
-        <div class="admin-status" id="menuUploadStatus" aria-live="polite"></div>
-      </form>
+        <div class="admin-status" id="membershipImportStatus" aria-live="polite"></div>
+      </details>
 
-      <div class="admin-menu-divider"></div>
-
-      <h2>Publish pizza menu</h2>
-      <p class="admin-help">PDF only, maximum file size 10 MB. Publishing replaces the current pizza menu immediately.</p>
-      <form id="pizzaMenuUploadForm">
-        <div class="admin-field admin-file">
-          <label for="pizzaMenuFile">Choose pizza menu PDF</label>
-          <input id="pizzaMenuFile" type="file" accept="application/pdf,.pdf" required />
-          <span class="admin-file-meta" id="selectedPizzaMenuFile">No file selected</span>
-        </div>
-        <div class="admin-actions">
-          <button class="primary-button" type="submit">Publish pizza menu</button>
-          <a class="secondary-button" id="currentPizzaMenuLink" href="#" target="_blank" rel="noopener">Preview current pizza menu</a>
-        </div>
-        <div class="admin-status" id="pizzaMenuUploadStatus" aria-live="polite"></div>
-      </form>
+      <div class="admin-status" id="membershipListStatus" aria-live="polite"></div>
+      <div class="admin-membership-list" id="membershipList"></div>
     </section>
 
     <section class="admin-card admin-cellar" id="cellarManagerPanel" hidden>
       <div class="admin-section-heading">
         <div>
+          <button class="admin-back-button" id="backFromCellar" type="button">← Dashboard</button>
           <p class="admin-eyebrow">The Cellar</p>
           <h2>Manage wines</h2>
           <p class="admin-help">Add a bottle, update its details, replace its image or hide it from the public Cellar.</p>
@@ -150,6 +199,66 @@
       <div class="admin-wine-list" id="wineList"></div>
     </section>
   </div>
+
+  <section class="admin-modal-layer" id="menuManagerPanel" hidden>
+    <div class="admin-modal-backdrop" data-close-menu-modal></div>
+    <div class="admin-modal" role="dialog" aria-modal="true" aria-labelledby="menuModalTitle">
+      <button class="admin-modal-close" id="closeMenuManager" type="button" aria-label="Close menu publishing">×</button>
+      <header class="admin-modal-header">
+        <p class="admin-eyebrow">Website content</p>
+        <h2 id="menuModalTitle">Publish menus</h2>
+        <p>Upload and publish the latest PDF menus. Changes appear on the Food page immediately.</p>
+      </header>
+
+      <form class="admin-menu-publisher" id="menuUploadForm">
+        <div class="admin-menu-publisher-heading">
+          <div>
+            <h3>Dining menu</h3>
+            <p>PDF only, maximum file size 10 MB.</p>
+          </div>
+          <span class="admin-online-badge">Current menu online</span>
+        </div>
+        <label class="admin-upload-zone" for="menuFile">
+          <span class="admin-upload-icon" aria-hidden="true">PDF</span>
+          <strong>Choose dining menu PDF</strong>
+          <span>Click to browse for a replacement file</span>
+          <input id="menuFile" type="file" accept="application/pdf,.pdf" required />
+          <span class="admin-file-meta" id="selectedFile">No file selected</span>
+        </label>
+        <div class="admin-menu-actions">
+          <a class="admin-preview-link" id="currentMenuLink" href="#" target="_blank" rel="noopener">Preview current menu</a>
+          <button class="primary-button" type="submit">Publish dining menu</button>
+        </div>
+        <div class="admin-status" id="menuUploadStatus" aria-live="polite"></div>
+      </form>
+
+      <form class="admin-menu-publisher" id="pizzaMenuUploadForm">
+        <div class="admin-menu-publisher-heading">
+          <div>
+            <h3>Pizza menu</h3>
+            <p>PDF only, maximum file size 10 MB.</p>
+          </div>
+          <span class="admin-online-badge">Current menu online</span>
+        </div>
+        <label class="admin-upload-zone" for="pizzaMenuFile">
+          <span class="admin-upload-icon" aria-hidden="true">PDF</span>
+          <strong>Choose pizza menu PDF</strong>
+          <span>Click to browse for a replacement file</span>
+          <input id="pizzaMenuFile" type="file" accept="application/pdf,.pdf" required />
+          <span class="admin-file-meta" id="selectedPizzaMenuFile">No file selected</span>
+        </label>
+        <div class="admin-menu-actions">
+          <a class="admin-preview-link" id="currentPizzaMenuLink" href="#" target="_blank" rel="noopener">Preview current menu</a>
+          <button class="primary-button" type="submit">Publish pizza menu</button>
+        </div>
+        <div class="admin-status" id="pizzaMenuUploadStatus" aria-live="polite"></div>
+      </form>
+
+      <footer class="admin-modal-footer">
+        <button class="secondary-button" type="button" data-close-menu-modal>Cancel</button>
+      </footer>
+    </div>
+  </section>
 </main>
 
 <script type="module" src="./JS/admin.js"></script>

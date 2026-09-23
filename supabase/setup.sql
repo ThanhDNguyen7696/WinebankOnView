@@ -215,3 +215,202 @@ using (
     where admin_users.user_id = auth.uid()
   )
 );
+
+-- Membership management ---------------------------------------------------
+
+create table if not exists public.memberships (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid unique references auth.users(id) on delete set null,
+  first_name text not null default '',
+  last_name text not null default '',
+  email text,
+  phone text,
+  customer_category text not null default 'Member',
+  status text not null default 'pending'
+    check (status in ('pending', 'active', 'expired', 'suspended', 'cancelled')),
+  start_date date,
+  expiry_date date,
+  source text not null default 'website',
+  legacy_key text unique,
+  legacy_created_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  check (expiry_date is null or start_date is null or expiry_date >= start_date)
+);
+
+alter table public.memberships
+add column if not exists customer_category text not null default 'Member';
+
+drop index if exists public.memberships_email_unique;
+create index if not exists memberships_email_index
+on public.memberships (lower(email))
+where email is not null and btrim(email) <> '';
+
+alter table public.memberships enable row level security;
+
+grant select on public.memberships to authenticated;
+grant insert, update, delete on public.memberships to authenticated;
+
+drop policy if exists "Members can read their own membership" on public.memberships;
+create policy "Members can read their own membership"
+on public.memberships for select
+to authenticated
+using (
+  user_id = auth.uid()
+  or exists (
+    select 1 from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Admins can add memberships" on public.memberships;
+create policy "Admins can add memberships"
+on public.memberships for insert
+to authenticated
+with check (
+  exists (
+    select 1 from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Admins can update memberships" on public.memberships;
+create policy "Admins can update memberships"
+on public.memberships for update
+to authenticated
+using (
+  exists (
+    select 1 from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+)
+with check (
+  exists (
+    select 1 from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Admins can delete memberships" on public.memberships;
+create policy "Admins can delete memberships"
+on public.memberships for delete
+to authenticated
+using (
+  exists (
+    select 1 from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+create or replace function public.set_memberships_updated_at()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists set_memberships_updated_at on public.memberships;
+create trigger set_memberships_updated_at
+before update on public.memberships
+for each row execute function public.set_memberships_updated_at();
+
+create or replace function public.create_or_link_membership()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  linked_id uuid;
+  email_match_count bigint;
+begin
+  select count(*) into email_match_count
+  from public.memberships
+  where user_id is null
+    and email is not null
+    and lower(email) = lower(new.email);
+
+  if email_match_count = 1 then
+    select id into linked_id
+    from public.memberships
+    where user_id is null
+      and email is not null
+      and lower(email) = lower(new.email)
+    limit 1;
+
+    update public.memberships
+    set
+      user_id = new.id,
+      first_name = coalesce(nullif(first_name, ''), new.raw_user_meta_data ->> 'first_name', ''),
+      last_name = coalesce(nullif(last_name, ''), new.raw_user_meta_data ->> 'last_name', ''),
+      phone = coalesce(nullif(phone, ''), new.raw_user_meta_data ->> 'phone'),
+      updated_at = now()
+    where id = linked_id;
+  else
+    insert into public.memberships (
+      user_id, first_name, last_name, email, phone,
+      status, start_date, expiry_date, source
+    ) values (
+      new.id,
+      coalesce(new.raw_user_meta_data ->> 'first_name', ''),
+      coalesce(new.raw_user_meta_data ->> 'last_name', ''),
+      lower(new.email),
+      new.raw_user_meta_data ->> 'phone',
+      'pending',
+      new.created_at::date,
+      (new.created_at + interval '1 year')::date,
+      'website'
+    );
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists create_membership_after_signup on auth.users;
+create trigger create_membership_after_signup
+after insert on auth.users
+for each row execute function public.create_or_link_membership();
+
+-- Backfill accounts that existed before membership management was enabled.
+update public.memberships membership
+set user_id = auth_user.id,
+    updated_at = now()
+from auth.users auth_user
+where membership.user_id is null
+  and membership.email is not null
+  and lower(membership.email) = lower(auth_user.email)
+  and 1 = (
+    select count(*) from public.memberships candidate
+    where candidate.user_id is null
+      and candidate.email is not null
+      and lower(candidate.email) = lower(auth_user.email)
+  )
+  and not exists (
+    select 1 from public.memberships existing
+    where existing.user_id = auth_user.id
+  );
+
+insert into public.memberships (
+  user_id, first_name, last_name, email, phone,
+  status, start_date, expiry_date, source
+)
+select
+  auth_user.id,
+  coalesce(auth_user.raw_user_meta_data ->> 'first_name', ''),
+  coalesce(auth_user.raw_user_meta_data ->> 'last_name', ''),
+  lower(auth_user.email),
+  auth_user.raw_user_meta_data ->> 'phone',
+  'pending',
+  auth_user.created_at::date,
+  (auth_user.created_at + interval '1 year')::date,
+  'website'
+from auth.users auth_user
+where not exists (
+  select 1 from public.memberships membership
+  where membership.user_id = auth_user.id
+);
