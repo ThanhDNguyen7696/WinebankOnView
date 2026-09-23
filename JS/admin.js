@@ -12,6 +12,7 @@ import {
   hasAdminAccess
 } from "./supabase-client.js";
 import { initMembershipAdmin } from "./memberships-admin.js";
+import { initEventsAdmin } from "./events-admin.js";
 
 const setupNotice = document.getElementById("setupNotice");
 const adminOverview = document.getElementById("adminOverview");
@@ -19,6 +20,7 @@ const adminSession = document.getElementById("adminSession");
 const menuPanel = document.getElementById("menuManagerPanel");
 const membershipPanel = document.getElementById("membershipManagerPanel");
 const cellarPanel = document.getElementById("cellarManagerPanel");
+const eventsPanel = document.getElementById("eventsManagerPanel");
 const uploadForm = document.getElementById("menuUploadForm");
 const uploadStatus = document.getElementById("menuUploadStatus");
 const currentMenuLink = document.getElementById("currentMenuLink");
@@ -64,6 +66,7 @@ function showLoggedIn(email) {
 function showOverview() {
   membershipPanel.hidden = true;
   cellarPanel.hidden = true;
+  eventsPanel.hidden = true;
   adminOverview.hidden = false;
   adminOverview.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -72,6 +75,7 @@ function showWorkspace(panel) {
   adminOverview.hidden = true;
   membershipPanel.hidden = panel !== membershipPanel;
   cellarPanel.hidden = panel !== cellarPanel;
+  eventsPanel.hidden = panel !== eventsPanel;
   panel.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
@@ -315,6 +319,12 @@ if (!isSupabaseConfigured) {
     }
   });
   document.getElementById("backFromCellar").addEventListener("click", showOverview);
+
+  document.getElementById("openEventsManager").addEventListener("click", () => {
+    initEventsAdmin();
+    showWorkspace(eventsPanel);
+  });
+  document.getElementById("backFromEvents").addEventListener("click", showOverview);
 
   uploadForm.addEventListener("submit", async (event) => {
     event.preventDefault();

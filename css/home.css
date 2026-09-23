@@ -435,6 +435,17 @@
     border-top:1px solid var(--line)
 }
 
+.event-grid article.has-image {
+    grid-template-columns:100px 120px 1fr auto
+}
+
+.event-image {
+    width:120px;
+    height:82px;
+    object-fit:cover;
+    background:var(--cream)
+}
+
 .event-date {
     font-weight:bold;
     color:var(--wine);
@@ -449,6 +460,21 @@
 .event-grid article div p {
     margin:0;
     color:var(--muted)
+}
+
+.event-grid article div small {
+    display:block;
+    margin-top:7px;
+    color:var(--wine);
+    font-size:12px;
+    letter-spacing:.05em
+}
+
+.events-status {
+    min-height:20px;
+    margin:12px 25px 0;
+    color:var(--muted);
+    font-size:13px
 }
 
 .contact-section {
@@ -786,8 +812,17 @@
         width:100%
     }
 
-.event-grid article {
+    .event-grid article {
         grid-template-columns:1fr
+    }
+
+    .event-grid article.has-image {
+        grid-template-columns:1fr
+    }
+
+    .event-image {
+        width:100%;
+        height:min(240px,55vw)
     }
 
 .event-button {
