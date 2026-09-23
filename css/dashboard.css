@@ -72,6 +72,30 @@
   font-size: 11px;
 }
 
+.membership-badge[data-status="active"] {
+  color: var(--success);
+  background: rgba(34, 113, 72, 0.12);
+}
+
+.membership-badge[data-status="expired"],
+.membership-badge[data-status="cancelled"] {
+  color: var(--error);
+  background: rgba(153, 43, 43, 0.1);
+}
+
+.membership-badge[data-status="suspended"] {
+  color: #8a5a13;
+  background: rgba(170, 134, 83, 0.16);
+}
+
+.membership-message {
+  min-height: 22px;
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
 .dashboard-actions {
   display: flex;
   flex-wrap: wrap;

@@ -11,7 +11,7 @@
 }
 
 .admin-shell {
-  width: min(1080px, 100%);
+  width: min(1240px, 100%);
   margin: 0 auto;
 }
 
@@ -291,9 +291,406 @@
   color: var(--error);
 }
 
+.admin-membership-tools {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) auto;
+  align-items: end;
+  gap: 20px;
+}
+
+.admin-membership-summary {
+  margin-bottom: 20px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.admin-import-panel {
+  margin: 12px 0 32px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  background: rgba(100, 35, 49, 0.025);
+}
+
+.admin-import-panel summary {
+  color: var(--wine-dark);
+  cursor: pointer;
+  font: 400 21px Georgia, serif;
+}
+
+.admin-import-panel[open] summary {
+  margin-bottom: 16px;
+}
+
+.admin-membership-list {
+  display: grid;
+  gap: 14px;
+}
+
+.admin-membership-item {
+  display: grid;
+  grid-template-columns: minmax(210px, 1.2fr) minmax(280px, 1fr) auto;
+  gap: 20px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.admin-membership-identity h3 {
+  margin: 0 0 7px;
+  color: var(--wine-dark);
+  font: 400 22px Georgia, serif;
+}
+
+.admin-membership-identity p,
+.admin-membership-dates p {
+  margin: 4px 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.admin-membership-dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.admin-membership-dates label {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.admin-membership-dates input {
+  min-height: 40px;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  font: inherit;
+}
+
+.admin-membership-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 5px 8px;
+  color: var(--muted);
+  background: rgba(33, 29, 25, 0.08);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.admin-membership-badge.active {
+  color: var(--success);
+  background: rgba(34, 113, 72, 0.1);
+}
+
+.admin-membership-badge.expired,
+.admin-membership-badge.cancelled {
+  color: var(--error);
+  background: rgba(153, 43, 43, 0.1);
+}
+
+.admin-membership-badge.suspended {
+  color: #8a5a13;
+  background: rgba(170, 134, 83, 0.16);
+}
+
+.admin-membership-controls {
+  display: flex;
+  align-items: stretch;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.admin-membership-controls button {
+  min-width: 116px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  color: var(--wine);
+  background: transparent;
+  cursor: pointer;
+}
+
+.admin-membership-controls .primary-action {
+  border-color: var(--wine);
+  color: #fff;
+  background: var(--wine);
+}
+
 button:disabled {
   cursor: wait;
   opacity: 0.65;
+}
+
+.admin-session {
+  margin: -20px 0 34px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.admin-overview {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.admin-overview[hidden],
+.admin-modal-layer[hidden] {
+  display: none !important;
+}
+
+.admin-feature-card {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 22px;
+  min-height: 280px;
+  padding: clamp(26px, 4vw, 38px);
+  border: 1px solid var(--line);
+  background: var(--paper);
+  transition: border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
+}
+
+.admin-feature-card:hover {
+  border-color: rgba(100, 35, 49, 0.4);
+  box-shadow: 0 16px 38px rgba(42, 17, 23, 0.07);
+  transform: translateY(-2px);
+}
+
+.admin-feature-icon {
+  display: grid;
+  width: 52px;
+  height: 52px;
+  place-items: center;
+  border: 1px solid rgba(100, 35, 49, 0.35);
+  color: var(--wine);
+  font: 400 28px/1 Georgia, serif;
+}
+
+.admin-feature-content {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+}
+
+.admin-feature-content h2 {
+  margin: 0 0 14px;
+  color: var(--wine-dark);
+  font: 400 clamp(25px, 3vw, 32px)/1.15 Georgia, serif;
+}
+
+.admin-feature-content > p:not(.admin-eyebrow) {
+  max-width: 440px;
+  margin: 0 0 26px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.admin-feature-content > .primary-button {
+  margin-top: auto;
+}
+
+.admin-quick-links nav {
+  display: grid;
+  width: 100%;
+  gap: 0;
+  margin-top: auto;
+}
+
+.admin-quick-links nav a {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--wine);
+  text-decoration: none;
+}
+
+.admin-quick-links nav a:hover {
+  text-decoration: underline;
+}
+
+.admin-back-button {
+  margin: 0 0 24px;
+  padding: 0;
+  border: 0;
+  color: var(--wine);
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  text-decoration: underline;
+}
+
+.admin-memberships,
+.admin-cellar {
+  box-shadow: none;
+}
+
+.admin-modal-open {
+  overflow: hidden;
+}
+
+.admin-modal-layer {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.admin-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(28, 22, 20, 0.62);
+}
+
+.admin-modal {
+  position: relative;
+  z-index: 1;
+  width: min(760px, 100%);
+  max-height: calc(100vh - 48px);
+  padding: clamp(26px, 4vw, 42px);
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  box-shadow: 0 28px 80px rgba(22, 11, 14, 0.28);
+}
+
+.admin-modal-close {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  font: 300 34px/1 sans-serif;
+}
+
+.admin-modal-close:hover,
+.admin-modal-close:focus-visible {
+  color: var(--wine);
+}
+
+.admin-modal-header {
+  padding-right: 50px;
+}
+
+.admin-modal-header h2 {
+  margin: 0 0 10px;
+  color: var(--wine-dark);
+  font: 400 clamp(34px, 5vw, 48px)/1 Georgia, serif;
+}
+
+.admin-modal-header > p:last-child {
+  margin: 0 0 28px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.admin-menu-publisher {
+  margin-top: 18px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.admin-menu-publisher-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.admin-menu-publisher-heading h3 {
+  margin: 0 0 6px;
+  color: var(--wine-dark);
+  font: 400 26px Georgia, serif;
+}
+
+.admin-menu-publisher-heading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.admin-online-badge {
+  flex: 0 0 auto;
+  padding: 7px 10px;
+  color: var(--success);
+  background: rgba(34, 113, 72, 0.1);
+  font-size: 12px;
+}
+
+.admin-upload-zone {
+  display: grid;
+  min-height: 170px;
+  padding: 24px;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  border: 1px dashed rgba(100, 35, 49, 0.5);
+  background: rgba(100, 35, 49, 0.025);
+  color: var(--muted);
+  cursor: pointer;
+  text-align: center;
+}
+
+.admin-upload-zone:hover,
+.admin-upload-zone:focus-within {
+  border-color: var(--wine);
+  background: rgba(100, 35, 49, 0.05);
+}
+
+.admin-upload-zone input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.admin-upload-zone strong {
+  color: var(--wine-dark);
+}
+
+.admin-upload-icon {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border: 1px solid var(--wine);
+  color: var(--wine);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.admin-menu-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.admin-preview-link {
+  color: var(--wine);
+}
+
+.admin-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 22px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
 }
 
 @media (max-width: 520px) {
@@ -317,6 +714,38 @@ button:disabled {
 }
 
 @media (max-width: 760px) {
+  .admin-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-feature-card {
+    min-height: 0;
+  }
+
+  .admin-modal-layer {
+    align-items: end;
+    padding: 0;
+  }
+
+  .admin-modal {
+    width: 100%;
+    max-height: 94vh;
+    padding: 26px 18px;
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 0;
+  }
+
+  .admin-menu-publisher-heading,
+  .admin-menu-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .admin-menu-actions .primary-button {
+    width: 100%;
+  }
+
   .admin-form-grid {
     grid-template-columns: 1fr;
   }
@@ -347,6 +776,20 @@ button:disabled {
   }
 
   .admin-wine-controls button {
+    flex: 1;
+  }
+
+  .admin-membership-tools,
+  .admin-membership-item {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-membership-controls {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .admin-membership-controls button {
     flex: 1;
   }
 }
