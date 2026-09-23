@@ -10,7 +10,7 @@
 </head>
 <body>
 <header class="site-header">
-  <a class="site-logo" href="./index.html">WINEBANK On View</a>
+  <a class="site-logo" href="./index.html">WINEBANK OnView</a>
   <nav class="admin-header-actions" aria-label="Admin shortcuts">
     <a class="secondary-button" href="./member-dashboard.html">My account</a>
     <button class="secondary-button" id="adminLogout" type="button">Sign out</button>
@@ -60,6 +60,16 @@
         </div>
       </article>
 
+      <article class="admin-feature-card">
+        <div class="admin-feature-icon" aria-hidden="true">□</div>
+        <div class="admin-feature-content">
+          <p class="admin-eyebrow">What’s on</p>
+          <h2>Events Management</h2>
+          <p>Create and publish upcoming experiences shown on the home page.</p>
+          <button class="primary-button" id="openEventsManager" type="button">Manage events</button>
+        </div>
+      </article>
+
       <article class="admin-feature-card admin-quick-links">
         <div class="admin-feature-icon" aria-hidden="true">↗</div>
         <div class="admin-feature-content">
@@ -73,6 +83,73 @@
           </nav>
         </div>
       </article>
+    </section>
+
+    <section class="admin-card admin-events" id="eventsManagerPanel" hidden>
+      <div class="admin-section-heading">
+        <div>
+          <button class="admin-back-button" id="backFromEvents" type="button">← Dashboard</button>
+          <p class="admin-eyebrow">What’s on</p>
+          <h2>Manage events</h2>
+          <p class="admin-help">Create, edit and publish upcoming experiences on the home page.</p>
+        </div>
+        <a class="secondary-button" href="./index.html#events" target="_blank" rel="noopener">Preview home page</a>
+      </div>
+
+      <div class="admin-events-layout">
+        <form class="admin-event-form" id="eventForm">
+          <h3 id="eventFormTitle">Create a new event</h3>
+          <input id="eventId" type="hidden" />
+          <input id="currentEventImage" type="hidden" />
+
+          <div class="admin-field">
+            <label for="eventTitle">Event title</label>
+            <input id="eventTitle" type="text" maxlength="140" required placeholder="Enter event title" />
+          </div>
+          <div class="admin-event-date-row">
+            <div class="admin-field">
+              <label for="eventDate">Date</label>
+              <input id="eventDate" type="date" required />
+            </div>
+            <div class="admin-field">
+              <label for="eventTime">Start time</label>
+              <input id="eventTime" type="time" />
+            </div>
+          </div>
+          <div class="admin-field">
+            <label for="eventDescription">Short description</label>
+            <textarea id="eventDescription" rows="4" maxlength="300" required placeholder="A brief description of the experience..."></textarea>
+          </div>
+          <div class="admin-field">
+            <label for="eventRegistrationUrl">Registration link</label>
+            <input id="eventRegistrationUrl" type="url" maxlength="500" placeholder="https://..." />
+          </div>
+          <div class="admin-field admin-file">
+            <label for="eventImage">Event image</label>
+            <input id="eventImage" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" />
+            <span class="admin-file-meta" id="selectedEventImage">Choose a JPG, PNG or WebP image, maximum 5 MB.</span>
+          </div>
+          <label class="admin-check">
+            <input id="eventPublished" type="checkbox" checked />
+            <span>Publish on home page</span>
+          </label>
+          <div class="admin-actions">
+            <button class="primary-button" id="saveEventButton" type="submit">Publish event</button>
+            <button class="secondary-button" id="saveEventDraft" type="button">Save draft</button>
+            <button class="secondary-button" id="cancelEventEdit" type="button" hidden>Cancel editing</button>
+          </div>
+          <div class="admin-status" id="eventFormStatus" aria-live="polite"></div>
+        </form>
+
+        <div class="admin-events-current">
+          <div class="admin-events-list-heading">
+            <h3>Upcoming events</h3>
+            <button class="admin-text-button" id="refreshEvents" type="button">Refresh</button>
+          </div>
+          <div class="admin-status" id="eventListStatus" aria-live="polite"></div>
+          <div class="admin-events-list" id="eventList"></div>
+        </div>
+      </div>
     </section>
 
     <section class="admin-card admin-memberships" id="membershipManagerPanel" hidden>

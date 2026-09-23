@@ -414,3 +414,156 @@ where not exists (
   select 1 from public.memberships membership
   where membership.user_id = auth_user.id
 );
+
+-- Events management -------------------------------------------------------
+
+create table if not exists public.events (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  event_date date not null,
+  start_time time,
+  short_description text not null,
+  registration_url text,
+  image_path text,
+  status text not null default 'draft'
+    check (status in ('draft', 'published', 'hidden')),
+  display_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists events_public_listing_index
+on public.events (status, event_date, display_order);
+
+alter table public.events enable row level security;
+grant select on public.events to anon, authenticated;
+grant insert, update, delete on public.events to authenticated;
+
+drop policy if exists "Public can read published events" on public.events;
+create policy "Public can read published events"
+on public.events for select
+to public
+using (
+  status = 'published'
+  or exists (
+    select 1 from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Admins can add events" on public.events;
+create policy "Admins can add events"
+on public.events for insert
+to authenticated
+with check (
+  exists (
+    select 1 from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Admins can update events" on public.events;
+create policy "Admins can update events"
+on public.events for update
+to authenticated
+using (
+  exists (
+    select 1 from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+)
+with check (
+  exists (
+    select 1 from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Admins can delete events" on public.events;
+create policy "Admins can delete events"
+on public.events for delete
+to authenticated
+using (
+  exists (
+    select 1 from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+create or replace function public.set_events_updated_at()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists set_events_updated_at on public.events;
+create trigger set_events_updated_at
+before update on public.events
+for each row execute function public.set_events_updated_at();
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'event-images',
+  'event-images',
+  true,
+  5242880,
+  array['image/jpeg', 'image/png', 'image/webp']
+)
+on conflict (id) do update set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "Public can read event images" on storage.objects;
+create policy "Public can read event images"
+on storage.objects for select
+to public
+using (bucket_id = 'event-images');
+
+drop policy if exists "Admins can upload event images" on storage.objects;
+create policy "Admins can upload event images"
+on storage.objects for insert
+to authenticated
+with check (
+  bucket_id = 'event-images'
+  and exists (
+    select 1 from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Admins can replace event images" on storage.objects;
+create policy "Admins can replace event images"
+on storage.objects for update
+to authenticated
+using (
+  bucket_id = 'event-images'
+  and exists (
+    select 1 from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+)
+with check (
+  bucket_id = 'event-images'
+  and exists (
+    select 1 from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Admins can delete event images" on storage.objects;
+create policy "Admins can delete event images"
+on storage.objects for delete
+to authenticated
+using (
+  bucket_id = 'event-images'
+  and exists (
+    select 1 from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
