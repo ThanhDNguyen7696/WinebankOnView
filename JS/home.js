@@ -115,3 +115,66 @@ if (contactForm) contactForm.addEventListener('submit', e => {
   status.textContent = 'Thanks — your showcase enquiry has been recorded.';
   e.target.reset();
 });
+
+const functionModal = $('#functionModal');
+const functionForm = $('#functionForm');
+let functionFormTrigger = null;
+
+const openFunctionForm = (trigger) => {
+  if (!functionModal) return;
+  functionFormTrigger = trigger;
+  functionModal.classList.add('show');
+  functionModal.setAttribute('aria-hidden', 'false');
+  document.body.classList.add('function-modal-open');
+  window.setTimeout(() => $('#functionName')?.focus(), 0);
+};
+
+const closeFunctionForm = () => {
+  if (!functionModal) return;
+  functionModal.classList.remove('show');
+  functionModal.setAttribute('aria-hidden', 'true');
+  document.body.classList.remove('function-modal-open');
+  functionFormTrigger?.focus();
+};
+
+document.addEventListener('click', (event) => {
+  const openButton = event.target.closest('[data-open-function-form]');
+  if (openButton) {
+    openFunctionForm(openButton);
+    return;
+  }
+
+  if (event.target.closest('[data-close-function-form]') || event.target === functionModal) {
+    closeFunctionForm();
+  }
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && functionModal?.classList.contains('show')) closeFunctionForm();
+});
+
+if (functionForm) functionForm.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const name = $('#functionName').value.trim();
+  const email = $('#functionEmail').value.trim();
+  const phone = $('#functionPhone').value.trim();
+  const subject = $('#functionSubject').value.trim() || 'Private function enquiry';
+  const message = $('#functionMessage').value.trim();
+  const status = $('#functionFormStatus');
+
+  if (!name || !validEmail(email) || !message) {
+    status.textContent = 'Please enter your name, a valid email address and a message.';
+    return;
+  }
+
+  const body = [
+    `Name: ${name}`,
+    `Email: ${email}`,
+    `Phone: ${phone || 'Not provided'}`,
+    '',
+    message
+  ].join('\n');
+
+  status.textContent = 'Your email application should now open. Please review and send your enquiry.';
+  window.location.href = `mailto:admin@winebankonview.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+});

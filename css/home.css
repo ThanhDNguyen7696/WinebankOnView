@@ -82,6 +82,7 @@
 
 .hero-actions {
     display:flex;
+    flex-wrap:wrap;
     gap:12px;
     margin-top:34px
 }
@@ -93,21 +94,30 @@
 
 .trust-strip {
     display:grid;
-    grid-template-columns:repeat(3,1fr);
+    grid-template-columns:repeat(4,1fr);
     max-width:var(--max-width);
     margin:0 auto;
     padding:27px 5%
 }
 
-.trust-strip div {
+.trust-strip a {
     padding:8px 30px;
     border-right:1px solid var(--line);
     display:flex;
     flex-direction:column;
-    gap:5px
+    gap:5px;
+    color:var(--ink);
+    text-decoration:none;
+    transition:color .2s, background .2s
 }
 
-.trust-strip div:last-child {
+.trust-strip a:hover,
+.trust-strip a:focus-visible {
+    color:var(--wine);
+    background:rgba(100,35,49,.035)
+}
+
+.trust-strip a:last-child {
     border-right:0
 }
 
@@ -355,12 +365,32 @@
     margin:25px 0
 }
 
-.feature-list div {
+.feature-link {
+    width:100%;
     padding:18px 0;
     border-bottom:1px solid var(--line);
     display:flex;
     flex-direction:column;
-    gap:5px
+    gap:5px;
+    color:var(--ink);
+    background:transparent;
+    font:inherit;
+    text-align:left;
+    text-decoration:none;
+    cursor:pointer;
+    transition:padding-left .2s, color .2s
+}
+
+button.feature-link {
+    border-top:0;
+    border-right:0;
+    border-left:0
+}
+
+.feature-link:hover,
+.feature-link:focus-visible {
+    padding-left:10px;
+    color:var(--wine)
 }
 
 .feature-list span {
@@ -714,6 +744,91 @@
     color:var(--muted)
 }
 
+.function-modal-card {
+    position:relative;
+    width:min(720px,100%);
+    max-width:720px;
+    max-height:calc(100vh - 40px);
+    overflow-y:auto;
+    text-align:left
+}
+
+.function-modal-close {
+    position:absolute;
+    top:18px;
+    right:20px;
+    width:40px;
+    height:40px;
+    border:0;
+    color:var(--muted);
+    background:transparent;
+    cursor:pointer;
+    font:300 32px/1 sans-serif
+}
+
+.function-modal-card>p {
+    max-width:580px
+}
+
+.function-form {
+    margin-top:28px
+}
+
+.function-form-grid {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px
+}
+
+.function-form label {
+    display:grid;
+    gap:7px;
+    color:var(--wine-dark);
+    font-size:13px;
+    font-weight:700
+}
+
+.function-form input,
+.function-form textarea {
+    width:100%;
+    min-height:48px;
+    padding:11px 13px;
+    border:1px solid var(--line);
+    color:var(--ink);
+    background:#fff;
+    font:inherit
+}
+
+.function-form textarea {
+    min-height:132px;
+    resize:vertical
+}
+
+.function-form-wide {
+    grid-column:1 / -1
+}
+
+.function-form-note,
+.function-form-status {
+    margin:16px 0 0;
+    color:var(--muted);
+    font-size:13px;
+    line-height:1.5
+}
+
+.function-form-status {
+    min-height:20px;
+    color:var(--error)
+}
+
+.function-modal .modal-actions {
+    justify-content:flex-start
+}
+
+body.function-modal-open {
+    overflow:hidden
+}
+
 .toast {
     position:fixed;
     left:50%;
@@ -757,8 +872,17 @@
     }
 
 .trust-strip {
+        grid-template-columns:repeat(2,1fr);
         padding-left:0;
         padding-right:0
+    }
+
+.trust-strip a:nth-child(2) {
+        border-right:0
+    }
+
+.trust-strip a:nth-child(-n+2) {
+        border-bottom:1px solid var(--line)
     }
 
 }
@@ -799,9 +923,21 @@
         grid-template-columns:1fr
     }
 
-.trust-strip div {
+.trust-strip a {
         border-right:0;
         border-bottom:1px solid var(--line)
+    }
+
+.trust-strip a:last-child {
+        border-bottom:0
+    }
+
+    .function-form-grid {
+        grid-template-columns:1fr
+    }
+
+    .function-form-wide {
+        grid-column:auto
     }
 
 .product-grid {
