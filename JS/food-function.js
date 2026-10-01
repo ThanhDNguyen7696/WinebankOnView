@@ -1,4 +1,5 @@
 import { validEmail } from './common.js';
+import { sendFunctionEnquiry } from './function-enquiry-service.js';
 
 const functionModal = document.querySelector('#functionModal');
 const functionForm = document.querySelector('#functionForm');
@@ -32,28 +33,35 @@ document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape' && functionModal?.classList.contains('show')) closeFunctionForm();
 });
 
-functionForm?.addEventListener('submit', (event) => {
+functionForm?.addEventListener('submit', async (event) => {
   event.preventDefault();
   const name = document.querySelector('#functionName').value.trim();
   const email = document.querySelector('#functionEmail').value.trim();
   const phone = document.querySelector('#functionPhone').value.trim();
   const subject = document.querySelector('#functionSubject').value.trim() || 'Private function enquiry';
   const message = document.querySelector('#functionMessage').value.trim();
+  const website = functionForm.elements.website?.value || '';
   const status = document.querySelector('#functionFormStatus');
+  const submitButton = functionForm.querySelector('button[type="submit"]');
 
   if (!name || !validEmail(email) || !message) {
     status.textContent = 'Please enter your name, a valid email address and a message.';
     return;
   }
 
-  const body = [
-    `Name: ${name}`,
-    `Email: ${email}`,
-    `Phone: ${phone || 'Not provided'}`,
-    '',
-    message
-  ].join('\n');
+  submitButton.disabled = true;
+  submitButton.textContent = 'Sending…';
+  status.textContent = 'Sending your enquiry…';
 
-  status.textContent = 'Your email application should now open. Please review and send your enquiry.';
-  window.location.href = `mailto:admin@winebankonview.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  try {
+    await sendFunctionEnquiry({ name, email, phone, subject, message, website });
+    status.textContent = 'Thank you — your function enquiry has been sent successfully.';
+    functionForm.reset();
+    document.querySelector('#functionSubject').value = 'Private function enquiry';
+  } catch (error) {
+    status.textContent = error.message;
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = 'Send enquiry';
+  }
 });

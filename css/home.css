@@ -778,6 +778,14 @@ button.feature-link {
     margin-top:28px
 }
 
+.function-honeypot {
+    position:absolute!important;
+    left:-10000px!important;
+    width:1px!important;
+    height:1px!important;
+    overflow:hidden!important
+}
+
 .function-form-grid {
     display:grid;
     grid-template-columns:1fr 1fr;

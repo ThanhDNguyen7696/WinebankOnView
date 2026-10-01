@@ -139,7 +139,7 @@ create table if not exists public.wines (
   region text not null default '',
   vintage text not null default 'NV',
   price numeric(10, 2) not null check (price >= 0),
-  wine_type text not null default 'red',
+  wine_type text not null default 'red-bottle',
   description text not null default '',
   image_path text,
   is_published boolean not null default true,
@@ -147,6 +147,26 @@ create table if not exists public.wines (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Replace the original wine type rule with the Square category names.
+alter table public.wines drop constraint if exists wines_wine_type_check;
+alter table public.wines alter column wine_type set default 'red-bottle';
+
+-- Keep older catalogue records compatible with the Square category names.
+update public.wines set wine_type = 'red-bottle' where lower(wine_type) in ('red', 'rose');
+update public.wines set wine_type = 'white-bottle' where lower(wine_type) = 'white';
+update public.wines set wine_type = 'champagne-sparkling' where lower(wine_type) = 'sparkling';
+
+alter table public.wines
+  add constraint wines_wine_type_check
+  check (wine_type in (
+    'magnums',
+    'red-bottle',
+    'vault-wines',
+    'dessert',
+    'white-bottle',
+    'champagne-sparkling'
+  ));
 
 alter table public.wines enable row level security;
 

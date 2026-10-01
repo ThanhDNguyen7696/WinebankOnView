@@ -211,6 +211,7 @@
     <h2 id="functionTitle">Function request</h2>
     <p>Tell us about your occasion and we’ll help you plan the right WineBank experience.</p>
     <form class="function-form" id="functionForm">
+      <label class="function-honeypot" aria-hidden="true">Website<input name="website" type="text" tabindex="-1" autocomplete="off" /></label>
       <div class="function-form-grid">
         <label>
           <span>Name *</span>
@@ -235,7 +236,7 @@
       </div>
       <p class="function-form-note">For bookings required within 48 hours, please call (03) 5444 4655.</p>
       <div class="modal-actions">
-        <button class="primary-button" type="submit">Prepare email</button>
+        <button class="primary-button" type="submit">Send enquiry</button>
         <button class="secondary-button" type="button" data-close-function-form>Cancel</button>
       </div>
       <p class="function-form-status" id="functionFormStatus" aria-live="polite"></p>
