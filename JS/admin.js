@@ -2,7 +2,11 @@ import {
   SUPABASE_URL,
   MENU_BUCKET,
   MENU_PATH,
-  PIZZA_MENU_PATH
+  PIZZA_MENU_PATH,
+  SPECIAL_MENU_PATH,
+  GLASS_MENU_PATH,
+  BOTTLE_MENU_PATH,
+  FUNCTION_BROCHURE_PATH
 } from "./supabase-config.js";
 import {
   supabase,
@@ -21,14 +25,14 @@ const menuPanel = document.getElementById("menuManagerPanel");
 const membershipPanel = document.getElementById("membershipManagerPanel");
 const cellarPanel = document.getElementById("cellarManagerPanel");
 const eventsPanel = document.getElementById("eventsManagerPanel");
-const uploadForm = document.getElementById("menuUploadForm");
-const uploadStatus = document.getElementById("menuUploadStatus");
-const currentMenuLink = document.getElementById("currentMenuLink");
-const selectedFile = document.getElementById("selectedFile");
-const pizzaUploadForm = document.getElementById("pizzaMenuUploadForm");
-const pizzaUploadStatus = document.getElementById("pizzaMenuUploadStatus");
-const currentPizzaMenuLink = document.getElementById("currentPizzaMenuLink");
-const selectedPizzaMenuFile = document.getElementById("selectedPizzaMenuFile");
+const MENU_DEFINITIONS = [
+  { key: "dining", label: "Dining menu", path: MENU_PATH, formId: "menuUploadForm", fileId: "menuFile", selectedId: "selectedFile", statusId: "menuUploadStatus", previewId: "currentMenuLink" },
+  { key: "pizza", label: "Pizza menu", path: PIZZA_MENU_PATH, formId: "pizzaMenuUploadForm", fileId: "pizzaMenuFile", selectedId: "selectedPizzaMenuFile", statusId: "pizzaMenuUploadStatus", previewId: "currentPizzaMenuLink" },
+  { key: "special", label: "Special menu", path: SPECIAL_MENU_PATH, formId: "specialMenuUploadForm", fileId: "specialMenuFile", selectedId: "selectedSpecialMenuFile", statusId: "specialMenuUploadStatus", previewId: "currentSpecialMenuLink" },
+  { key: "glass", label: "Drinks by the Glass", path: GLASS_MENU_PATH, formId: "glassMenuUploadForm", fileId: "glassMenuFile", selectedId: "selectedGlassMenuFile", statusId: "glassMenuUploadStatus", previewId: "currentGlassMenuLink" },
+  { key: "bottle", label: "Drinks by the Bottle", path: BOTTLE_MENU_PATH, formId: "bottleMenuUploadForm", fileId: "bottleMenuFile", selectedId: "selectedBottleMenuFile", statusId: "bottleMenuUploadStatus", previewId: "currentBottleMenuLink" },
+  { key: "functions", label: "Function brochure", path: FUNCTION_BROCHURE_PATH, formId: "functionBrochureUploadForm", fileId: "functionBrochureFile", selectedId: "selectedFunctionBrochureFile", statusId: "functionBrochureUploadStatus", previewId: "currentFunctionBrochureLink" }
+];
 const logoutButton = document.getElementById("adminLogout");
 const wineForm = document.getElementById("wineForm");
 const wineFormStatus = document.getElementById("wineFormStatus");
@@ -59,8 +63,49 @@ function showLoggedIn(email) {
   adminOverview.hidden = false;
   adminSession.hidden = false;
   document.getElementById("adminIdentity").textContent = email;
-  currentMenuLink.href = `${publicMenuUrl()}?v=${Date.now()}`;
-  currentPizzaMenuLink.href = `${publicMenuUrl(PIZZA_MENU_PATH)}?v=${Date.now()}`;
+  MENU_DEFINITIONS.forEach((menu) => {
+    document.getElementById(menu.previewId).href = `${publicMenuUrl(menu.path)}?v=${Date.now()}`;
+  });
+  loadMenuVisibility();
+}
+
+async function loadMenuVisibility() {
+  const { data, error } = await supabase
+    .from("menu_settings")
+    .select("menu_key, is_visible");
+
+  if (error) {
+    MENU_DEFINITIONS.forEach((menu) => {
+      showStatus(document.getElementById(menu.statusId), "Run the latest supabase/setup.sql to enable Show/Hide controls.", "error");
+    });
+    return;
+  }
+
+  const visibility = new Map((data || []).map((item) => [item.menu_key, item.is_visible]));
+  MENU_DEFINITIONS.forEach((menu) => {
+    const toggle = document.querySelector(`[data-menu-visibility="${menu.key}"]`);
+    toggle.checked = visibility.get(menu.key) !== false;
+  });
+}
+
+async function saveMenuVisibility(toggle) {
+  const menu = MENU_DEFINITIONS.find((item) => item.key === toggle.dataset.menuVisibility);
+  if (!menu) return;
+  const status = document.getElementById(menu.statusId);
+  toggle.disabled = true;
+  showStatus(status, toggle.checked ? "Showing this menu…" : "Hiding this menu…");
+
+  const { error } = await supabase
+    .from("menu_settings")
+    .upsert({ menu_key: menu.key, is_visible: toggle.checked }, { onConflict: "menu_key" });
+
+  toggle.disabled = false;
+  if (error) {
+    toggle.checked = !toggle.checked;
+    showStatus(status, authErrorMessage(error, "Unable to update menu visibility."), "error");
+    return;
+  }
+  showStatus(status, toggle.checked ? "Menu button is now visible." : "Menu button is now hidden.", "success");
 }
 
 function showOverview() {
@@ -132,7 +177,7 @@ async function publishMenu({ form, fileInput, status, path, previewLink, label }
   }
 
   previewLink.href = `${publicMenuUrl(path)}?v=${Date.now()}`;
-  form.reset();
+  fileInput.value = "";
   showStatus(status, `The new ${label.toLowerCase()} is now live.`, "success");
   return true;
 }
@@ -288,9 +333,33 @@ if (!isSupabaseConfigured) {
     setupNotice.querySelector("p").textContent = authErrorMessage(error, "Please try again later.");
   }
 
-  document.getElementById("menuFile").addEventListener("change", (event) => {
-    const file = event.target.files[0];
-    selectedFile.textContent = file ? `${file.name} · ${(file.size / 1024 / 1024).toFixed(2)} MB` : "No file selected";
+  MENU_DEFINITIONS.forEach((menu) => {
+    const form = document.getElementById(menu.formId);
+    const fileInput = document.getElementById(menu.fileId);
+    const selected = document.getElementById(menu.selectedId);
+    const status = document.getElementById(menu.statusId);
+    const previewLink = document.getElementById(menu.previewId);
+    const visibilityToggle = document.querySelector(`[data-menu-visibility="${menu.key}"]`);
+
+    fileInput.addEventListener("change", () => {
+      const file = fileInput.files[0];
+      selected.textContent = file ? `${file.name} · ${(file.size / 1024 / 1024).toFixed(2)} MB` : "No file selected";
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const published = await publishMenu({
+        form,
+        fileInput,
+        status,
+        path: menu.path,
+        previewLink,
+        label: menu.label
+      });
+      if (published) selected.textContent = "No file selected";
+    });
+
+    visibilityToggle.addEventListener("change", () => saveMenuVisibility(visibilityToggle));
   });
 
   document.getElementById("openMenuManager").addEventListener("click", (event) => {
@@ -325,37 +394,6 @@ if (!isSupabaseConfigured) {
     showWorkspace(eventsPanel);
   });
   document.getElementById("backFromEvents").addEventListener("click", showOverview);
-
-  uploadForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const published = await publishMenu({
-      form: uploadForm,
-      fileInput: document.getElementById("menuFile"),
-      status: uploadStatus,
-      path: MENU_PATH,
-      previewLink: currentMenuLink,
-      label: "Dining menu"
-    });
-    if (published) selectedFile.textContent = "No file selected";
-  });
-
-  document.getElementById("pizzaMenuFile").addEventListener("change", (event) => {
-    const file = event.target.files[0];
-    selectedPizzaMenuFile.textContent = file ? `${file.name} · ${(file.size / 1024 / 1024).toFixed(2)} MB` : "No file selected";
-  });
-
-  pizzaUploadForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const published = await publishMenu({
-      form: pizzaUploadForm,
-      fileInput: document.getElementById("pizzaMenuFile"),
-      status: pizzaUploadStatus,
-      path: PIZZA_MENU_PATH,
-      previewLink: currentPizzaMenuLink,
-      label: "Pizza menu"
-    });
-    if (published) selectedPizzaMenuFile.textContent = "No file selected";
-  });
 
   logoutButton.addEventListener("click", async () => {
     await supabase.auth.signOut();

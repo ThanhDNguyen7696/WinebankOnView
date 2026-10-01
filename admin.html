@@ -35,7 +35,7 @@
         <div class="admin-feature-content">
           <p class="admin-eyebrow">Website content</p>
           <h2>Menu Publishing</h2>
-          <p>Update the dining and pizza PDF menus shown on the Food page.</p>
+          <p>Publish seasonal food and drinks menus, and choose which buttons appear on the Food page.</p>
           <button class="primary-button" id="openMenuManager" type="button">Manage menus</button>
         </div>
       </article>
@@ -302,6 +302,10 @@
           <input id="menuFile" type="file" accept="application/pdf,.pdf" required />
           <span class="admin-file-meta" id="selectedFile">No file selected</span>
         </label>
+        <label class="admin-menu-visibility">
+          <input id="diningMenuVisible" type="checkbox" data-menu-visibility="dining" checked />
+          <span>Show Dining menu button on the Food page</span>
+        </label>
         <div class="admin-menu-actions">
           <a class="admin-preview-link" id="currentMenuLink" href="#" target="_blank" rel="noopener">Preview current menu</a>
           <button class="primary-button" type="submit">Publish dining menu</button>
@@ -324,11 +328,107 @@
           <input id="pizzaMenuFile" type="file" accept="application/pdf,.pdf" required />
           <span class="admin-file-meta" id="selectedPizzaMenuFile">No file selected</span>
         </label>
+        <label class="admin-menu-visibility">
+          <input id="pizzaMenuVisible" type="checkbox" data-menu-visibility="pizza" checked />
+          <span>Show Pizza menu button on the Food page</span>
+        </label>
         <div class="admin-menu-actions">
           <a class="admin-preview-link" id="currentPizzaMenuLink" href="#" target="_blank" rel="noopener">Preview current menu</a>
           <button class="primary-button" type="submit">Publish pizza menu</button>
         </div>
         <div class="admin-status" id="pizzaMenuUploadStatus" aria-live="polite"></div>
+      </form>
+
+      <form class="admin-menu-publisher" id="specialMenuUploadForm">
+        <div class="admin-menu-publisher-heading">
+          <div><h3>Special menu</h3><p>PDF only, maximum file size 10 MB.</p></div>
+          <span class="admin-online-badge">Seasonal menu</span>
+        </div>
+        <label class="admin-upload-zone" for="specialMenuFile">
+          <span class="admin-upload-icon" aria-hidden="true">PDF</span>
+          <strong>Choose special menu PDF</strong>
+          <span>Click to browse for a replacement file</span>
+          <input id="specialMenuFile" type="file" accept="application/pdf,.pdf" required />
+          <span class="admin-file-meta" id="selectedSpecialMenuFile">No file selected</span>
+        </label>
+        <label class="admin-menu-visibility">
+          <input id="specialMenuVisible" type="checkbox" data-menu-visibility="special" checked />
+          <span>Show Special menu button on the Food page</span>
+        </label>
+        <div class="admin-menu-actions">
+          <a class="admin-preview-link" id="currentSpecialMenuLink" href="#" target="_blank" rel="noopener">Preview current menu</a>
+          <button class="primary-button" type="submit">Publish special menu</button>
+        </div>
+        <div class="admin-status" id="specialMenuUploadStatus" aria-live="polite"></div>
+      </form>
+
+      <form class="admin-menu-publisher" id="glassMenuUploadForm">
+        <div class="admin-menu-publisher-heading">
+          <div><h3>Drinks by the Glass</h3><p>PDF only, maximum file size 10 MB.</p></div>
+          <span class="admin-online-badge">Drinks menu</span>
+        </div>
+        <label class="admin-upload-zone" for="glassMenuFile">
+          <span class="admin-upload-icon" aria-hidden="true">PDF</span>
+          <strong>Choose drinks-by-the-glass PDF</strong>
+          <span>Click to browse for a replacement file</span>
+          <input id="glassMenuFile" type="file" accept="application/pdf,.pdf" required />
+          <span class="admin-file-meta" id="selectedGlassMenuFile">No file selected</span>
+        </label>
+        <label class="admin-menu-visibility">
+          <input id="glassMenuVisible" type="checkbox" data-menu-visibility="glass" checked />
+          <span>Show Drinks by the Glass button on the Food page</span>
+        </label>
+        <div class="admin-menu-actions">
+          <a class="admin-preview-link" id="currentGlassMenuLink" href="#" target="_blank" rel="noopener">Preview current menu</a>
+          <button class="primary-button" type="submit">Publish drinks by the glass</button>
+        </div>
+        <div class="admin-status" id="glassMenuUploadStatus" aria-live="polite"></div>
+      </form>
+
+      <form class="admin-menu-publisher" id="bottleMenuUploadForm">
+        <div class="admin-menu-publisher-heading">
+          <div><h3>Drinks by the Bottle</h3><p>PDF only, maximum file size 10 MB.</p></div>
+          <span class="admin-online-badge">Drinks menu</span>
+        </div>
+        <label class="admin-upload-zone" for="bottleMenuFile">
+          <span class="admin-upload-icon" aria-hidden="true">PDF</span>
+          <strong>Choose drinks-by-the-bottle PDF</strong>
+          <span>Click to browse for a replacement file</span>
+          <input id="bottleMenuFile" type="file" accept="application/pdf,.pdf" required />
+          <span class="admin-file-meta" id="selectedBottleMenuFile">No file selected</span>
+        </label>
+        <label class="admin-menu-visibility">
+          <input id="bottleMenuVisible" type="checkbox" data-menu-visibility="bottle" checked />
+          <span>Show Drinks by the Bottle button on the Food page</span>
+        </label>
+        <div class="admin-menu-actions">
+          <a class="admin-preview-link" id="currentBottleMenuLink" href="#" target="_blank" rel="noopener">Preview current menu</a>
+          <button class="primary-button" type="submit">Publish drinks by the bottle</button>
+        </div>
+        <div class="admin-status" id="bottleMenuUploadStatus" aria-live="polite"></div>
+      </form>
+
+      <form class="admin-menu-publisher" id="functionBrochureUploadForm">
+        <div class="admin-menu-publisher-heading">
+          <div><h3>Function brochure</h3><p>PDF only, maximum file size 10 MB.</p></div>
+          <span class="admin-online-badge">Functions</span>
+        </div>
+        <label class="admin-upload-zone" for="functionBrochureFile">
+          <span class="admin-upload-icon" aria-hidden="true">PDF</span>
+          <strong>Choose function brochure PDF</strong>
+          <span>Click to browse for a replacement file</span>
+          <input id="functionBrochureFile" type="file" accept="application/pdf,.pdf" required />
+          <span class="admin-file-meta" id="selectedFunctionBrochureFile">No file selected</span>
+        </label>
+        <label class="admin-menu-visibility">
+          <input id="functionBrochureVisible" type="checkbox" data-menu-visibility="functions" checked />
+          <span>Show Function brochure link on the Food page</span>
+        </label>
+        <div class="admin-menu-actions">
+          <a class="admin-preview-link" id="currentFunctionBrochureLink" href="#" target="_blank" rel="noopener">Preview current brochure</a>
+          <button class="primary-button" type="submit">Publish function brochure</button>
+        </div>
+        <div class="admin-status" id="functionBrochureUploadStatus" aria-live="polite"></div>
       </form>
 
       <footer class="admin-modal-footer">

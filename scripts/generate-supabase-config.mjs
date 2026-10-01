@@ -38,6 +38,10 @@ export const SUPABASE_ANON_KEY = ${JSON.stringify(anonKey)};
 export const MENU_BUCKET = "menus";
 export const MENU_PATH = "food/current-menu.pdf";
 export const PIZZA_MENU_PATH = "food/current-pizza-menu.pdf";
+export const SPECIAL_MENU_PATH = "food/current-special-menu.pdf";
+export const GLASS_MENU_PATH = "food/current-drinks-by-the-glass.pdf";
+export const BOTTLE_MENU_PATH = "food/current-drinks-by-the-bottle.pdf";
+export const FUNCTION_BROCHURE_PATH = "food/current-function-brochure.pdf";
 
 export function hasSupabaseConfig() {
   return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);

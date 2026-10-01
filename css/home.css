@@ -340,12 +340,16 @@
 }
 
 .experience-slide--bar {
-    background-image:url("../assets/images/winebank-experience-bar.jpg");
+    background-image:url("../assets/images/COGBIndustry-bar.jpg");
     background-position:center
 }
 
 .experience-slide--dining {
-    background-image:url("../assets/images/winebank-experience-cellar.jpg");
+    background-image:url("../assets/images/COGBIndustry-dinning.jpg");
+    background-position:center
+}
+.experience-slide--wine {
+    background-image:url("../assets/images/COGBIndustry-KOL-wine.jpg");
     background-position:center
 }
 
