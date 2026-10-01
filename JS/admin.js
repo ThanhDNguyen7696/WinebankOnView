@@ -191,6 +191,32 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+const legacyWineTypes = {
+  red: "red-bottle",
+  rose: "red-bottle",
+  white: "white-bottle",
+  sparkling: "champagne-sparkling"
+};
+
+const wineTypeLabels = {
+  magnums: "Magnums",
+  "red-bottle": "Red Bottle",
+  "vault-wines": "Vault Wines",
+  dessert: "Dessert",
+  "white-bottle": "White Bottle",
+  "champagne-sparkling": "Champagne & Sparkling"
+};
+
+function normalizedWineType(type) {
+  const value = String(type || "").trim().toLowerCase();
+  return legacyWineTypes[value] || value;
+}
+
+function wineTypeLabel(type) {
+  const normalizedType = normalizedWineType(type);
+  return wineTypeLabels[normalizedType] || type;
+}
+
 function wineImageUrl(imagePath) {
   if (!imagePath) return "";
   return supabase.storage.from(WINE_IMAGE_BUCKET).getPublicUrl(imagePath).data.publicUrl;
@@ -264,7 +290,7 @@ function renderWines() {
       ${image}
       <div class="admin-wine-details">
         <h4>${escapeHtml(wine.name)}</h4>
-        <p>${escapeHtml(wine.region)} · ${escapeHtml(wine.vintage)} · ${escapeHtml(wine.wine_type)}</p>
+        <p>${escapeHtml(wine.region)} · ${escapeHtml(wine.vintage)} · ${escapeHtml(wineTypeLabel(wine.wine_type))}</p>
         <p><strong>$${Number(wine.price).toFixed(2)}</strong> · Display order ${Number(wine.display_order)}</p>
         <span class="admin-wine-badge${publishedClass}">${publishedLabel}</span>
       </div>
@@ -302,7 +328,7 @@ function editWine(wine) {
   document.getElementById("wineRegion").value = wine.region;
   document.getElementById("wineVintage").value = wine.vintage;
   document.getElementById("winePrice").value = Number(wine.price).toFixed(2);
-  document.getElementById("wineType").value = wine.wine_type;
+  document.getElementById("wineType").value = normalizedWineType(wine.wine_type);
   document.getElementById("wineOrder").value = wine.display_order;
   document.getElementById("wineDescription").value = wine.description || "";
   document.getElementById("winePublished").checked = wine.is_published;

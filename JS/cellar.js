@@ -3,12 +3,25 @@ import { supabase, isSupabaseConfigured } from './supabase-client.js';
 
 const WINE_IMAGE_BUCKET = 'wine-images';
 const fallbackArt = {
-  red: 'linear-gradient(145deg,#2b0d12,#7b2633)',
-  white: 'linear-gradient(145deg,#65552e,#d9c786)',
-  sparkling: 'linear-gradient(145deg,#70552e,#e1c782)',
-  rose: 'linear-gradient(145deg,#9d5f61,#efc2b6)',
-  dessert: 'linear-gradient(145deg,#72512d,#d5a85d)'
+  magnums: 'linear-gradient(145deg,#2b0d12,#6f2835)',
+  'red-bottle': 'linear-gradient(145deg,#2b0d12,#7b2633)',
+  'vault-wines': 'linear-gradient(145deg,#17110f,#5f4938)',
+  dessert: 'linear-gradient(145deg,#72512d,#d5a85d)',
+  'white-bottle': 'linear-gradient(145deg,#65552e,#d9c786)',
+  'champagne-sparkling': 'linear-gradient(145deg,#70552e,#e1c782)'
 };
+
+const legacyWineTypes = {
+  red: 'red-bottle',
+  rose: 'red-bottle',
+  white: 'white-bottle',
+  sparkling: 'champagne-sparkling'
+};
+
+function normalizedWineType(type) {
+  const value = String(type || '').trim().toLowerCase();
+  return legacyWineTypes[value] || value;
+}
 
 let products = [];
 let cart = JSON.parse(localStorage.getItem('winebankCart') || '[]');
@@ -66,9 +79,9 @@ async function loadProducts() {
     region: wine.region,
     year: wine.vintage,
     price: Number(wine.price),
-    type: wine.wine_type,
+    type: normalizedWineType(wine.wine_type),
     imageUrl: publicImageUrl(wine.image_path),
-    fallback: fallbackArt[wine.wine_type] || fallbackArt.red
+    fallback: fallbackArt[normalizedWineType(wine.wine_type)] || fallbackArt['red-bottle']
   }));
 
   cart = cart.filter((item) => products.some((product) => product.id === String(item.id)));
