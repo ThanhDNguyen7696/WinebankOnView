@@ -59,6 +59,72 @@ with check (
   )
 );
 
+-- Menu button visibility --------------------------------------------------
+
+create table if not exists public.menu_settings (
+  menu_key text primary key
+    check (menu_key in ('dining', 'pizza', 'special', 'glass', 'bottle', 'functions')),
+  is_visible boolean not null default true,
+  updated_at timestamptz not null default now()
+);
+
+-- Expand the allowed keys when upgrading an existing installation.
+alter table public.menu_settings
+drop constraint if exists menu_settings_menu_key_check;
+
+alter table public.menu_settings
+add constraint menu_settings_menu_key_check
+check (menu_key in ('dining', 'pizza', 'special', 'glass', 'bottle', 'functions'));
+
+alter table public.menu_settings enable row level security;
+
+grant select on public.menu_settings to anon, authenticated;
+grant insert, update on public.menu_settings to authenticated;
+
+drop policy if exists "Public can read menu settings" on public.menu_settings;
+create policy "Public can read menu settings"
+on public.menu_settings for select
+to public
+using (true);
+
+drop policy if exists "Admins can add menu settings" on public.menu_settings;
+create policy "Admins can add menu settings"
+on public.menu_settings for insert
+to authenticated
+with check (
+  exists (
+    select 1 from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+drop policy if exists "Admins can update menu settings" on public.menu_settings;
+create policy "Admins can update menu settings"
+on public.menu_settings for update
+to authenticated
+using (
+  exists (
+    select 1 from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+)
+with check (
+  exists (
+    select 1 from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+insert into public.menu_settings (menu_key, is_visible)
+values
+  ('dining', true),
+  ('pizza', true),
+  ('special', true),
+  ('glass', true),
+  ('bottle', true),
+  ('functions', true)
+on conflict (menu_key) do nothing;
+
 -- After creating an admin in Authentication > Users, replace the email below
 -- and run this statement separately:
 -- insert into public.admin_users (user_id)

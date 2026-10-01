@@ -47,8 +47,37 @@
 .food-actions {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
   gap: 14px;
   margin-top: 38px;
+}
+
+.food-menu-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.food-course-menu-actions,
+.drinks-menu-actions {
+  display: grid;
+  gap: 14px;
+}
+
+.food-course-menu-actions {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.drinks-menu-actions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: calc((200% - 14px) / 3);
+}
+
+.food-menu-actions .secondary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .food-actions .secondary-button {
@@ -177,6 +206,131 @@
   color: var(--wine);
 }
 
+.function-enquiry-link,
+.function-brochure-link {
+  display: block;
+  margin-top: 10px;
+  padding: 0;
+  border: 0;
+  color: var(--wine);
+  background: transparent;
+  font: inherit;
+  line-height: 1.7;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.function-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: none;
+  place-items: center;
+  padding: 20px;
+  background: rgba(18, 7, 10, 0.92);
+}
+
+.function-modal.show {
+  display: grid;
+}
+
+.function-modal-card {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  padding: 46px;
+  color: var(--ink);
+  background: var(--paper);
+}
+
+.function-modal-card h2 {
+  margin: 8px 0 12px;
+  color: var(--wine-dark);
+  font: 400 clamp(36px, 5vw, 52px)/1.05 Georgia, serif;
+}
+
+.function-modal-card > p:not(.food-eyebrow) {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.function-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  color: var(--muted);
+  background: transparent;
+  font: 300 32px/1 sans-serif;
+  cursor: pointer;
+}
+
+.function-form {
+  margin-top: 26px;
+}
+
+.function-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.function-form label {
+  display: grid;
+  gap: 7px;
+  color: var(--wine-dark);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.function-form input,
+.function-form textarea {
+  width: 100%;
+  min-height: 48px;
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  color: var(--ink);
+  background: #fff;
+  font: inherit;
+}
+
+.function-form textarea {
+  min-height: 132px;
+  resize: vertical;
+}
+
+.function-form-wide {
+  grid-column: 1 / -1;
+}
+
+.function-form-note,
+.function-form-status {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.function-form-status {
+  min-height: 20px;
+  color: var(--error);
+}
+
+.function-form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+body.function-modal-open {
+  overflow: hidden;
+}
+
 .food-note {
   display: flex;
   gap: 30px;
@@ -214,6 +368,23 @@
     min-height: 0;
     aspect-ratio: 16 / 10;
   }
+
+  .food-course-menu-actions,
+  .drinks-menu-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .drinks-menu-actions {
+    width: 100%;
+  }
+}
+
+.function-brochure-link[hidden] {
+  display: none;
+}
+
+.food-menu-actions [hidden] {
+  display: none;
 }
 
 @media (max-width: 520px) {
@@ -227,12 +398,35 @@
     flex-direction: column;
   }
 
-  .food-actions a {
+  .food-actions a,
+  .food-menu-actions {
     width: 100%;
+  }
+
+  .food-course-menu-actions,
+  .drinks-menu-actions {
+    grid-template-columns: 1fr;
   }
 
   .food-note {
     flex-direction: column;
     gap: 10px;
+  }
+
+  .function-modal-card {
+    padding: 40px 22px 28px;
+  }
+
+  .function-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .function-form-wide {
+    grid-column: auto;
+  }
+
+  .function-form-actions {
+    align-items: stretch;
+    flex-direction: column;
   }
 }

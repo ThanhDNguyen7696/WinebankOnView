@@ -744,6 +744,22 @@ button:disabled {
   font-size: 12px;
 }
 
+.admin-menu-visibility {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+  color: var(--wine-dark);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.admin-menu-visibility input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--wine);
+}
+
 .admin-upload-zone {
   display: grid;
   min-height: 170px;
