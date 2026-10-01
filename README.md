@@ -60,6 +60,16 @@ The anon key is designed to be public. Never place a Supabase service-role key i
 
 `.env.local` is gitignored. For a hosted deployment, set `SUPABASE_URL` and `SUPABASE_ANON_KEY` as environment variables and run `npm run build` as the build step.
 
+## Function enquiry email
+
+The Private occasions form posts to the Vercel Function at `/api/function-enquiry`, which sends email through Resend. Configure these environment variables in Vercel:
+
+- `RESEND_API_KEY` — a Resend API key with permission to send email.
+- `RESEND_FROM` — a verified sender, for example `WineBank Website <functions@your-verified-domain.com>`. For initial testing, `WineBank Website <onboarding@resend.dev>` may be used subject to Resend's testing restrictions.
+- `FUNCTION_ENQUIRY_TO` — the recipient address, currently `lucaslewis741@gmail.com`.
+
+Never place `RESEND_API_KEY` in browser JavaScript or commit it to Git.
+
 ## Authentication
 
 Member registration, login, password reset, session handling and logout use Supabase Auth (`JS/login.js`, `JS/signup.js`, `JS/dashboard.js`, `JS/reset-password.js`). Names, phone details and consent selections are stored in Supabase user metadata. Passwords and sessions are not stored in `localStorage`.
