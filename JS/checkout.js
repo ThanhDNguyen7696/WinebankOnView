@@ -134,12 +134,29 @@ async function pay(event) {
     window.location.href = body.url;
   } catch (error) {
     showError(error.message);
-    button.disabled = false;
-    button.textContent = 'Pay securely with Square';
+    resetPayButton();
   }
 }
 
+function resetPayButton() {
+  $('#payButton').disabled = false;
+  $('#payButton').textContent = 'Pay securely with Square';
+}
+
 $('#checkoutForm').addEventListener('submit', pay);
+
+// Coming back from Square with the browser's Back button restores this page
+// exactly as it was left (back/forward cache), including the disabled
+// "Opening secure checkout…" button. Reset it and re-read the bag, which may
+// have been emptied after a completed payment.
+window.addEventListener('pageshow', (event) => {
+  if (!event.persisted) return;
+  resetPayButton();
+  showError('');
+  cart = readCart();
+  render();
+  refreshFromSquare();
+});
 
 $('#checkoutLines').addEventListener('click', (event) => {
   const inc = event.target.closest('[data-inc]');
