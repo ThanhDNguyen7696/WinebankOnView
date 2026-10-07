@@ -47,12 +47,23 @@
         <button class="filter-button" data-filter="white-bottle">White Bottle</button>
         <button class="filter-button" data-filter="champagne-sparkling">Champagne &amp; Sparkling</button>
       </div>
-      <label class="search-box">
-        <span class="sr-only">Search wines</span>
-        <input id="wineSearch" type="search" placeholder="Search the cellar" /></label>
+      <div class="shop-controls">
+        <label class="search-box">
+          <span class="sr-only">Search wines</span>
+          <input id="wineSearch" type="search" placeholder="Search the cellar" /></label>
+        <label class="sort-box">
+          <span class="sr-only">Sort wines</span>
+          <select id="wineSort">
+            <option value="name">Name A–Z</option>
+            <option value="price-asc">Price: low to high</option>
+            <option value="price-desc">Price: high to low</option>
+          </select>
+        </label>
+      </div>
     </div>
     <div class="product-grid" id="productGrid"></div>
     <p class="empty-state" id="emptyState" hidden>No wines match your search.</p>
+    <div class="show-more"><button class="secondary-button" id="showMore" type="button" hidden>Show more</button></div>
   </section>
 </main>
 
@@ -95,11 +106,11 @@
   <div class="cart-items" id="cartItems"></div>
   <div class="cart-footer">
     <div class="cart-total">
-      <span>Total</span>
+      <span>Subtotal</span>
       <strong id="cartTotal">$0.00</strong>
     </div>
-    <button class="primary-button" id="checkoutButton">Demo checkout</button>
-    <small>No payment is processed in this prototype.</small>
+    <a class="primary-button" id="checkoutButton" href="./checkout.html">Checkout</a>
+    <small>Member pricing and pickup details on the next step.</small>
   </div>
 </aside>
 <div class="drawer-backdrop" id="drawerBackdrop"></div>

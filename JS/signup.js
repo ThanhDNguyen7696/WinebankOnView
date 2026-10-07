@@ -10,6 +10,13 @@ import { supabase, isSupabaseConfigured, pageUrl, authErrorMessage } from "./sup
 setupPasswordToggles();
 
 const form = document.getElementById("signupForm");
+
+// Already signed in: there is nothing to register, show the membership instead.
+if (isSupabaseConfigured) {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) window.location.replace(pageUrl("./member-dashboard.html"));
+}
+
 if (!isSupabaseConfigured) {
   setStatus("signupStatus", "Account registration is being configured. Please try again later.", "error");
   form.querySelector('button[type="submit"]').disabled = true;

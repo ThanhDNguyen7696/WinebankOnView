@@ -6,14 +6,19 @@ This project has been split into reusable pages, styles and scripts so it can gr
 
 1. Copy `.env.example` to `.env.local` and fill in your Supabase project URL and anon key.
 2. Run `npm run config` to generate `JS/supabase-config.js` from `.env.local`.
-3. Start a small local server:
+3. Start the local preview server (it also runs the `api/` functions):
 
 ```bash
-python3 -m http.server 5500
+npm run dev
 ```
 
-Then open `http://localhost:5500` in a browser. You can also use the
-**Live Server** extension in VS Code.
+Then open `http://localhost:5501` in a browser.
+
+The Cellar page reads its wines from Square through `/api/square-catalog`, so
+set `SQUARE_ACCESS_TOKEN` in `.env.local` (and in Vercel's Environment
+Variables) to see them. Wines are managed in the Square Item Library under the
+Magnums, Red Bottle, Vault Wines, Dessert, White Bottle and
+Champagne & Sparkling categories.
 
 Re-run `npm run config` any time you change `.env.local`. `JS/supabase-config.js`
 is generated and gitignored — do not edit or commit it directly.
