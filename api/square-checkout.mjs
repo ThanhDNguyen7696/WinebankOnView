@@ -2,7 +2,7 @@
 // Prices always come from the Square catalogue, never from the browser, and the
 // member discount (set by admins in Supabase shop_settings) is only added after
 // the membership is checked in Supabase.
-import { cellarGroupResolver, json, squareAccount, squareFetch } from "./_square.mjs";
+import { cellarGroupResolver, inventoryCounts, json, sellableVariation, squareAccount, squareFetch, tracksInventory } from "./_square.mjs";
 
 const MAX_LINES = 50;
 const MAX_QUANTITY = 99;
@@ -132,12 +132,25 @@ export async function POST(request) {
       return json({ error: "Some wines in your bag are no longer available. Please refresh the page.", unavailable }, 409);
     }
 
+    // Never sell more bottles than Square has in stock.
+    const tracked = [...quantities.keys()]
+      .map((id) => ({ id, variation: sellableVariation(items.get(id).item_data) }))
+      .filter(({ variation }) => tracksInventory(variation));
+    const stock = await inventoryCounts(catalogAccount, tracked.map(({ variation }) => variation.id));
+    const short = tracked
+      .filter(({ id, variation }) => quantities.get(id) > Math.max(0, Math.floor(stock.get(variation.id) || 0)))
+      .map(({ id, variation }) => ({ id, name: items.get(id).item_data.name, available: Math.max(0, Math.floor(stock.get(variation.id) || 0)) }));
+    if (short.length) {
+      const names = short.map((line) => `${line.name} (${line.available ? `only ${line.available} left` : "sold out"})`).join(", ");
+      return json({ error: `Not enough stock: ${names}. Please update your bag.`, stock: short }, 409);
+    }
+
     // When checkout runs against a separate sandbox account, the production
     // catalogue ids do not exist there, so send named lines with the real price.
     const sameAccount = checkoutAccount.token === catalogAccount.token;
     const lineItems = [...quantities].map(([id, qty]) => {
       const item = items.get(id);
-      const variation = item.item_data.variations.find((candidate) => !candidate.is_deleted);
+      const variation = sellableVariation(item.item_data);
       return sameAccount
         ? { catalog_object_id: variation.id, quantity: String(qty) }
         : { name: item.item_data.name, quantity: String(qty), base_price_money: variation.item_variation_data.price_money };

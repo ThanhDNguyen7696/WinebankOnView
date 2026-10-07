@@ -84,6 +84,44 @@ export function cellarGroupResolver(categories) {
   };
 }
 
+// The variation the website sells for an item (checkout uses the same one).
+export function sellableVariation(itemData) {
+  return (itemData.variations || []).find((variation) => !variation.is_deleted) || null;
+}
+
+export function tracksInventory(variation) {
+  const data = variation?.item_variation_data || {};
+  return Boolean(data.track_inventory || (data.location_overrides || []).some((override) => override.track_inventory));
+}
+
+// Returns Map<variationId, quantity in stock> for the given variations. Only
+// counts at SQUARE_LOCATION_ID when it is set; otherwise sums all locations.
+export async function inventoryCounts(account, variationIds) {
+  const quantities = new Map(variationIds.map((id) => [id, 0]));
+  const locationId = process.env.SQUARE_LOCATION_ID;
+
+  for (let start = 0; start < variationIds.length; start += 1000) {
+    let cursor;
+    do {
+      const page = await squareFetch(account, "/v2/inventory/counts/batch-retrieve", {
+        method: "POST",
+        body: {
+          catalog_object_ids: variationIds.slice(start, start + 1000),
+          location_ids: locationId ? [locationId] : undefined,
+          states: ["IN_STOCK"],
+          cursor
+        }
+      });
+      for (const count of page.counts || []) {
+        quantities.set(count.catalog_object_id, (quantities.get(count.catalog_object_id) || 0) + Number(count.quantity || 0));
+      }
+      cursor = page.cursor;
+    } while (cursor);
+  }
+
+  return quantities;
+}
+
 export function itemPrice(itemData) {
   const amounts = (itemData.variations || [])
     .filter((variation) => !variation.is_deleted)

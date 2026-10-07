@@ -1,6 +1,6 @@
 import { loadSquareCellar } from './square-catalog.js';
 import { supabase, isSupabaseConfigured } from './supabase-client.js';
-import { cartTotals, escapeHtml, fallbackArt, money, readCart, refreshCart, wineArt, writeCart } from './cart.js';
+import { cartTotals, escapeHtml, fallbackArt, maxQuantity, money, readCart, refreshCart, stockLabel, wineArt, writeCart } from './cart.js';
 
 const $ = (selector) => document.querySelector(selector);
 const validEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -19,6 +19,7 @@ function render() {
     <div class="cart-thumb" style="background:${fallbackArt[line.category] || fallbackArt['red-bottle']}">${wineArt(line, 'cart-thumb-image')}</div>
     <div>
       <h3>${escapeHtml(line.name)}</h3>
+      ${line.stock !== null && line.stock <= 5 ? `<p class="checkout-stock">${escapeHtml(stockLabel(line))}</p>` : ''}
       <div class="quantity"><button type="button" data-dec="${escapeHtml(line.id)}" aria-label="Decrease quantity">−</button><span>${line.qty}</span><button type="button" data-inc="${escapeHtml(line.id)}" aria-label="Increase quantity">+</button></div>
       <button class="checkout-remove" type="button" data-remove="${escapeHtml(line.id)}">Remove</button>
     </div>
@@ -49,9 +50,10 @@ async function refreshFromSquare() {
   try {
     const result = refreshCart(cart, await loadSquareCellar());
     cart = result.cart;
-    if (result.removed.length) {
-      showNotice(`No longer available and removed from your bag: ${result.removed.join(', ')}.`);
-    }
+    const notices = [];
+    if (result.removed.length) notices.push(`Sold out or no longer available, removed from your bag: ${result.removed.join(', ')}.`);
+    if (result.reduced.length) notices.push(`Quantity lowered to the stock available: ${result.reduced.join(', ')}.`);
+    if (notices.length) showNotice(notices.join(' '));
     save();
   } catch (error) {
     console.warn('Unable to refresh the bag from Square.', error);
@@ -143,7 +145,11 @@ $('#checkoutLines').addEventListener('click', (event) => {
   const inc = event.target.closest('[data-inc]');
   const dec = event.target.closest('[data-dec]');
   const remove = event.target.closest('[data-remove]');
-  if (inc) { const line = cart.find((entry) => entry.id === inc.dataset.inc); if (line) line.qty = Math.min(line.qty + 1, 99); }
+  if (inc) {
+    const line = cart.find((entry) => entry.id === inc.dataset.inc);
+    if (line && line.qty >= maxQuantity(line)) showNotice(`Only ${line.stock} of ${line.name} in stock.`);
+    else if (line) line.qty += 1;
+  }
   if (dec) { const line = cart.find((entry) => entry.id === dec.dataset.dec); if (line) line.qty -= 1; cart = cart.filter((entry) => entry.qty > 0); }
   if (remove) cart = cart.filter((entry) => entry.id !== remove.dataset.remove);
   if (inc || dec || remove) save();

@@ -35,10 +35,16 @@ const types = {
 
 async function handleApi(req, res, url) {
   const file = join(root, "api", `${url.pathname.slice("/api/".length)}.mjs`);
-  const handlers = await import(`${pathToFileURL(file).href}?t=${Date.now()}`).catch(() => null);
-  const handler = handlers?.[req.method];
+  if (!await stat(file).catch(() => null)) {
+    res.writeHead(404).end();
+    return;
+  }
+  // The endpoint reloads on every request; restart the server after editing
+  // files it imports (e.g. api/_square.mjs), which Node keeps cached.
+  const handlers = await import(`${pathToFileURL(file).href}?t=${Date.now()}`);
+  const handler = handlers[req.method];
   if (!handler) {
-    res.writeHead(handlers ? 405 : 404).end();
+    res.writeHead(405).end();
     return;
   }
 

@@ -1,6 +1,6 @@
 // Reads the cellar wines from the Square Item Library so the website always
 // matches what is on sale in Square. The access token stays on the server.
-import { CELLAR_CATEGORIES, cellarGroupResolver, itemPrice, json, squareAccount, squareFetch } from "./_square.mjs";
+import { CELLAR_CATEGORIES, cellarGroupResolver, inventoryCounts, itemPrice, json, sellableVariation, squareAccount, squareFetch, tracksInventory } from "./_square.mjs";
 
 async function listCatalogObjects(account) {
   const objects = [];
@@ -17,7 +17,8 @@ async function listCatalogObjects(account) {
   return objects;
 }
 
-function toCellarItems(objects) {
+// stock is the quantity on hand in Square, or null when Square does not track it.
+function toCellarItems(objects, quantities) {
   const categories = new Map();
   const imageUrls = new Map();
 
@@ -49,11 +50,26 @@ function toCellarItems(objects) {
         subcategory: subcategory && subcategory !== CELLAR_CATEGORIES[group] ? subcategory : "",
         vintage: itemData.name?.match(/\b(19|20)\d{2}\b/)?.[0] || "NV",
         imageUrl: (itemData.image_ids || []).map((id) => imageUrls.get(id)).find(Boolean) || "",
+        stock: stockFor(sellableVariation(itemData), quantities),
         ...itemPrice(itemData)
       };
     })
     .filter(Boolean)
     .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function stockFor(variation, quantities) {
+  if (!variation || !tracksInventory(variation)) return null;
+  return Math.max(0, Math.floor(quantities.get(variation.id) || 0));
+}
+
+// Inventory is only needed for the variations of items that sit in the cellar.
+function trackedVariationIds(objects) {
+  return objects
+    .filter((object) => object.type === "ITEM" && !object.is_deleted)
+    .map((object) => sellableVariation(object.item_data || {}))
+    .filter((variation) => variation && tracksInventory(variation))
+    .map((variation) => variation.id);
 }
 
 export async function GET() {
@@ -64,10 +80,20 @@ export async function GET() {
   }
 
   try {
-    const items = toCellarItems(await listCatalogObjects(account));
-    // Cache at the edge: refresh from Square every 5 minutes in the background,
-    // so visitors never wait for the full catalogue download.
-    return json({ items }, 200, { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=86400" });
+    const objects = await listCatalogObjects(account);
+    const draft = toCellarItems(objects, new Map());
+    const cellarIds = new Set(draft.map((item) => item.id));
+    // Still list the wines if inventory is unavailable; checkout re-checks stock.
+    const quantities = await inventoryCounts(account, trackedVariationIds(objects.filter((object) => cellarIds.has(object.id))))
+      .catch((error) => { console.error("Unable to load Square inventory:", error); return null; });
+    const items = quantities ? toCellarItems(objects, quantities) : draft.map((item) => ({ ...item, stock: null }));
+    // Only Vercel's edge caches the list (refreshed from Square every 5 minutes
+    // in the background); browsers always ask the edge, so stock is never a
+    // previous visit's copy.
+    return json({ items }, 200, {
+      "Cache-Control": "no-cache",
+      "Vercel-CDN-Cache-Control": "max-age=300, stale-while-revalidate=86400"
+    });
   } catch (error) {
     console.error("Unable to load the Square catalogue:", error);
     return json({ error: "Unable to load the cellar from Square." }, 502);

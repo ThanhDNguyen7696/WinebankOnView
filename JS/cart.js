@@ -43,20 +43,35 @@ export function writeCart(cart) {
 }
 
 export function snapshot(wine, qty) {
-  return { id: wine.id, qty, name: wine.name, price: wine.price, category: wine.category, imageUrl: wine.imageUrl || '' };
+  return { id: wine.id, qty, name: wine.name, price: wine.price, category: wine.category, imageUrl: wine.imageUrl || '', stock: wine.stock ?? null };
 }
 
-// Updates names and prices from the latest catalogue and drops wines that are
-// no longer sold. Returns the names of removed wines.
+// stock is null when Square does not track inventory for the wine.
+export const isSoldOut = (wine) => wine.stock === 0;
+export const maxQuantity = (wine) => Math.min(99, wine.stock ?? 99);
+
+export function stockLabel(wine) {
+  if (wine.stock === null || wine.stock === undefined) return '';
+  if (wine.stock === 0) return 'Sold out';
+  if (wine.stock <= 5) return `Only ${wine.stock} left`;
+  return `${wine.stock} in stock`;
+}
+
+// Updates names, prices and stock from the latest catalogue, drops wines that
+// are no longer sold or are sold out, and lowers quantities above the stock.
+// Returns the names of removed and reduced wines.
 export function refreshCart(cart, wines) {
   const byId = new Map(wines.map((wine) => [wine.id, wine]));
   const removed = [];
+  const reduced = [];
   const refreshed = cart.flatMap((line) => {
     const wine = byId.get(line.id);
-    if (!wine || wine.price === null) { removed.push(line.name); return []; }
-    return [snapshot(wine, line.qty)];
+    if (!wine || wine.price === null || isSoldOut(wine)) { removed.push(line.name); return []; }
+    const qty = Math.min(line.qty, maxQuantity(wine));
+    if (qty < line.qty) reduced.push(line.name);
+    return [snapshot(wine, qty)];
   });
-  return { cart: refreshed, removed };
+  return { cart: refreshed, removed, reduced };
 }
 
 export function cartTotals(cart, discountPercent = 0) {
