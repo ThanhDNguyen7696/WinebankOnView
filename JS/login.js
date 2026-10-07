@@ -50,7 +50,9 @@ form.addEventListener("submit", async (event) => {
   try {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
-    window.location.replace(pageUrl("./member-dashboard.html"));
+    // Only known pages are allowed as a return target.
+    const next = new URLSearchParams(window.location.search).get("next");
+    window.location.replace(pageUrl(next === "checkout" ? "./checkout.html" : "./member-dashboard.html"));
   } catch (error) {
     setStatus("loginStatus", authErrorMessage(error, "Unable to log in."), "error");
   } finally {

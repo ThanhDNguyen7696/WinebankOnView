@@ -55,8 +55,8 @@
         <div class="admin-feature-content">
           <p class="admin-eyebrow">Wine collection</p>
           <h2>Cellar Management</h2>
-          <p>Add and update wines, product details, prices and cellar images.</p>
-          <button class="primary-button" id="openCellarManager" type="button">Manage cellar</button>
+          <p>Wines, prices and images now come from the Square Item Library.</p>
+          <button class="primary-button" id="openCellarManager" type="button">View cellar</button>
         </div>
       </article>
 
@@ -166,6 +166,21 @@
         </div>
       </div>
 
+      <form class="admin-discount" id="memberDiscountForm" novalidate>
+        <div>
+          <h3>Online member discount</h3>
+          <p class="admin-help">Applied at Cellar checkout for members with an active, unexpired membership. Set 0 to turn it off. In-store discounts are set in Square.</p>
+        </div>
+        <div class="admin-discount-controls">
+          <div class="admin-field">
+            <label for="memberDiscountPercent">Discount (%)</label>
+            <input id="memberDiscountPercent" type="number" min="0" max="100" step="1" inputmode="numeric" required disabled />
+          </div>
+          <button class="primary-button" id="saveMemberDiscount" type="submit" disabled>Save discount</button>
+        </div>
+        <div class="admin-status" id="memberDiscountStatus" aria-live="polite"></div>
+      </form>
+
       <div class="admin-membership-tools">
         <div class="admin-field">
           <label for="membershipSearch">Search members</label>
@@ -197,80 +212,17 @@
         <div>
           <button class="admin-back-button" id="backFromCellar" type="button">← Dashboard</button>
           <p class="admin-eyebrow">The Cellar</p>
-          <h2>Manage wines</h2>
-          <p class="admin-help">Add a bottle, update its details, replace its image or hide it from the public Cellar.</p>
+          <h2>Cellar from Square</h2>
+          <p class="admin-help">The Cellar page lists every Square item in the Magnums, Red Bottle, Vault Wines, Dessert, White Bottle and Champagne &amp; Sparkling categories. Add, edit, price or archive wines in Square; changes appear on the website within about five minutes.</p>
         </div>
-        <a class="secondary-button" href="./cellar.html" target="_blank" rel="noopener">Preview Cellar</a>
+        <div class="admin-actions">
+          <a class="primary-button" href="https://app.squareup.com/dashboard/items/library" target="_blank" rel="noopener">Open Square items</a>
+          <a class="secondary-button" href="./cellar.html" target="_blank" rel="noopener">Preview Cellar</a>
+        </div>
       </div>
 
-      <form id="wineForm">
-        <input id="wineId" type="hidden" />
-        <input id="currentWineImage" type="hidden" />
-
-        <div class="admin-form-grid">
-          <div class="admin-field admin-field--wide">
-            <label for="wineName">Wine name</label>
-            <input id="wineName" type="text" maxlength="120" required />
-          </div>
-
-          <div class="admin-field">
-            <label for="wineRegion">Region</label>
-            <input id="wineRegion" type="text" maxlength="120" required />
-          </div>
-
-          <div class="admin-field">
-            <label for="wineVintage">Vintage</label>
-            <input id="wineVintage" type="text" maxlength="12" value="NV" required />
-          </div>
-
-          <div class="admin-field">
-            <label for="winePrice">Price (AUD)</label>
-            <input id="winePrice" type="number" min="0" step="0.01" required />
-          </div>
-
-          <div class="admin-field">
-            <label for="wineType">Wine type</label>
-            <select id="wineType" required>
-              <option value="magnums">Magnums</option>
-              <option value="red-bottle">Red Bottle</option>
-              <option value="vault-wines">Vault Wines</option>
-              <option value="dessert">Dessert</option>
-              <option value="white-bottle">White Bottle</option>
-              <option value="champagne-sparkling">Champagne &amp; Sparkling</option>
-            </select>
-          </div>
-
-          <div class="admin-field">
-            <label for="wineOrder">Display order</label>
-            <input id="wineOrder" type="number" min="0" step="1" value="0" required />
-          </div>
-
-          <div class="admin-field admin-field--wide">
-            <label for="wineDescription">Description</label>
-            <textarea id="wineDescription" rows="4" maxlength="1000"></textarea>
-          </div>
-
-          <div class="admin-field admin-file admin-field--wide">
-            <label for="wineImage">Product image</label>
-            <input id="wineImage" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" />
-            <span class="admin-file-meta" id="selectedWineImage">Choose a JPG, PNG or WebP image, maximum 5 MB.</span>
-          </div>
-
-          <label class="admin-check admin-field--wide">
-            <input id="winePublished" type="checkbox" checked />
-            <span>Publish this wine on the Cellar page</span>
-          </label>
-        </div>
-
-        <div class="admin-actions">
-          <button class="primary-button" id="saveWineButton" type="submit">Add wine</button>
-          <button class="secondary-button" id="cancelWineEdit" type="button" hidden>Cancel editing</button>
-        </div>
-        <div class="admin-status" id="wineFormStatus" aria-live="polite"></div>
-      </form>
-
       <div class="admin-wine-list-heading">
-        <h3>Current cellar</h3>
+        <h3>Wines on the website</h3>
         <button class="admin-text-button" id="refreshWines" type="button">Refresh</button>
       </div>
       <div class="admin-status" id="wineListStatus" aria-live="polite"></div>

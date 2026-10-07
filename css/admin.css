@@ -166,16 +166,6 @@
   margin-bottom: 8px;
 }
 
-.admin-form-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0 18px;
-}
-
-.admin-field--wide {
-  grid-column: 1 / -1;
-}
-
 .admin-check {
   display: flex;
   align-items: center;
@@ -218,7 +208,7 @@
 
 .admin-wine-item {
   display: grid;
-  grid-template-columns: 92px minmax(0, 1fr) auto;
+  grid-template-columns: 92px minmax(0, 1fr);
   align-items: center;
   gap: 18px;
   padding: 14px;
@@ -254,41 +244,44 @@
   line-height: 1.5;
 }
 
-.admin-wine-badge {
-  display: inline-block;
-  margin-top: 7px;
-  padding: 4px 8px;
-  color: var(--success);
-  background: rgba(34, 113, 72, 0.1);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+.admin-discount {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 8px 24px;
+  margin-bottom: 30px;
+  padding: 22px 24px;
+  border: 1px solid var(--line);
+  background: #fff;
 }
 
-.admin-wine-badge.hidden-wine {
-  color: var(--muted);
-  background: rgba(33, 29, 25, 0.08);
+.admin-discount h3 {
+  margin: 0 0 6px;
+  color: var(--wine-dark);
+  font: 400 22px Georgia, serif;
 }
 
-.admin-wine-controls {
+.admin-discount .admin-help {
+  margin: 0;
+}
+
+.admin-discount-controls {
   display: flex;
   align-items: flex-end;
-  flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
-.admin-wine-controls button {
-  min-width: 94px;
-  padding: 8px 11px;
-  border: 1px solid var(--line);
-  color: var(--wine);
-  background: transparent;
-  cursor: pointer;
+.admin-discount-controls .admin-field {
+  width: 120px;
+  margin-bottom: 0;
 }
 
-.admin-wine-controls .danger {
-  color: var(--error);
+.admin-discount-controls .primary-button {
+  white-space: nowrap;
+}
+
+.admin-discount .admin-status {
+  grid-column: 1 / -1;
 }
 
 .admin-membership-tools {
@@ -879,14 +872,6 @@ button:disabled {
     width: 100%;
   }
 
-  .admin-form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .admin-field--wide {
-    grid-column: auto;
-  }
-
   .admin-section-heading {
     align-items: stretch;
     flex-direction: column;
@@ -901,20 +886,15 @@ button:disabled {
     height: 98px;
   }
 
-  .admin-wine-controls {
-    grid-column: 1 / -1;
-    align-items: stretch;
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-
-  .admin-wine-controls button {
-    flex: 1;
-  }
-
   .admin-membership-tools,
-  .admin-membership-item {
+  .admin-membership-item,
+  .admin-discount {
     grid-template-columns: 1fr;
+  }
+
+  .admin-discount-controls .admin-field {
+    flex: 1;
+    width: auto;
   }
 
   .admin-membership-controls {

@@ -198,6 +198,8 @@
 }
 
 .product-card {
+    display:flex;
+    flex-direction:column;
     border:1px solid var(--line);
     background:#fff;
     transition:.25s
@@ -272,7 +274,13 @@
     border-bottom:5px solid #b28b55
 }
 
+/* Cards in a row share one height, so the price row is pinned to the bottom
+   whatever the length of the wine name. */
 .product-info {
+    display:flex;
+    flex:1;
+    flex-direction:column;
+    align-items:flex-start;
     padding:21px
 }
 
@@ -291,8 +299,11 @@
 
 .product-info>div {
     display:flex;
+    align-self:stretch;
     align-items:center;
-    justify-content:space-between
+    justify-content:space-between;
+    gap:12px;
+    margin-top:auto
 }
 
 .add-button {
@@ -300,7 +311,43 @@
     background:none;
     color:var(--wine);
     font-weight:bold;
+    white-space:nowrap;
     cursor:pointer
+}
+
+.add-button:disabled {
+    color:var(--muted);
+    cursor:not-allowed
+}
+
+.stock-badge {
+    display:inline-block;
+    margin:0 0 10px;
+    padding:3px 8px;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase
+}
+
+.stock-badge--in {
+    color:var(--success);
+    background:rgba(66,98,75,.1)
+}
+
+.stock-badge--low {
+    color:#8a5a14;
+    background:rgba(178,139,85,.16)
+}
+
+.stock-badge--sold-out {
+    color:var(--muted);
+    background:rgba(33,29,25,.07)
+}
+
+.product-card.is-sold-out .product-art {
+    filter:grayscale(.6);
+    opacity:.75
 }
 
 .empty-state {
@@ -695,8 +742,14 @@ button.feature-link {
 }
 
 .cart-footer .primary-button {
+    display:flex;
     width:100%
 }
+
+.cart-footer .primary-button.is-disabled {
+    opacity:.5
+}
+
 
 .cart-footer small {
     display:block;
@@ -998,3 +1051,56 @@ body.function-modal-open {
         transform:none
     }
 }
+
+.show-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.shop-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.sort-box select {
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  padding: 10px 2px;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  outline: none;
+}
+
+@media (max-width: 650px) {
+  .shop-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+#showMore[hidden] {
+  display: none;
+}
+
+.checkout-success {
+  max-width: 680px;
+  text-align: center;
+}
+
+.checkout-success p {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.checkout-success-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 32px;
+}
+

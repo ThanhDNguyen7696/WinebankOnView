@@ -15,5 +15,12 @@ if (navCta && isSupabaseConfigured) {
 
     navCta.textContent = displayName;
     navCta.href = "./member-dashboard.html";
+
+    // Signed-in visitors already have an account, so sign-up links lead to
+    // their membership instead of a second registration.
+    document.querySelectorAll('a[href="./signup.html"]').forEach((link) => {
+      link.href = "./member-dashboard.html";
+      link.textContent = link.dataset.memberText || "My account";
+    });
   }
 }

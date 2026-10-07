@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Checkout | Wine Bank on View</title>
+  <link rel="stylesheet" href="./css/global.css" />
+  <link rel="stylesheet" href="./css/home.css" />
+  <link rel="stylesheet" href="./css/checkout.css" />
+</head>
+<body>
+<header class="site-header site-header--home">
+  <a class="site-logo site-logo--hero" href="./index.html" aria-label="Wine Bank on View home">
+    <span class="site-logo__name">WINE BANK</span>
+    <span class="site-logo__suffix">on view</span>
+  </a>
+  <button class="menu-toggle" type="button" aria-label="Open navigation" aria-controls="siteNav" aria-expanded="false">Menu</button>
+  <nav class="site-nav" id="siteNav" aria-label="Main navigation">
+    <a href="./index.html">Home</a>
+    <a href="./cellar.html">The Cellar</a>
+    <a href="./food.html">Food</a>
+    <a href="./index.html#events">What’s On</a>
+    <a href="./accommodation.html">Accommodation</a>
+    <a href="./index.html#membership">Membership</a>
+    <a href="./index.html#contact">Contact</a>
+    <a class="nav-cta" href="./login.html">Member Login</a>
+  </nav>
+</header>
+
+<main class="section checkout-page">
+  <a class="checkout-back" href="./cellar.html">
+    <svg aria-hidden="true" viewBox="0 0 16 16" width="16" height="16"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square"/></svg>
+    <span>Continue shopping</span>
+  </a>
+  <p class="eyebrow">The cellar</p>
+  <h1>Checkout</h1>
+
+  <p class="checkout-notice" id="checkoutNotice" role="status" hidden></p>
+
+  <div class="checkout-empty" id="checkoutEmpty" hidden>
+    <p>Your bag is empty.</p>
+    <a class="primary-button" href="./cellar.html">Explore the Cellar</a>
+  </div>
+
+  <div class="checkout-layout" id="checkoutLayout" hidden>
+    <form class="checkout-details" id="checkoutForm" novalidate>
+      <section>
+        <h2>Pickup details</h2>
+        <p class="checkout-help">Collect your order from WineBank, 45 View Street, Bendigo. We will email you when it is ready.</p>
+
+        <div class="checkout-field">
+          <label for="pickupName">Full name</label>
+          <input id="pickupName" type="text" autocomplete="name" maxlength="120" required />
+        </div>
+        <div class="checkout-field">
+          <label for="pickupEmail">Email</label>
+          <input id="pickupEmail" type="email" autocomplete="email" maxlength="254" required />
+        </div>
+        <div class="checkout-field">
+          <label for="pickupPhone">Phone <span>(optional)</span></label>
+          <input id="pickupPhone" type="tel" autocomplete="tel" maxlength="30" />
+        </div>
+
+        <label class="checkout-check">
+          <input id="ageConfirm" type="checkbox" required />
+          <span>I am 18 or older and will bring photo ID when I collect my order.</span>
+        </label>
+      </section>
+
+      <section class="checkout-member" id="memberBox">
+        <h2>Member pricing</h2>
+        <p id="memberMessage">WineBank members save <span data-discount-percent>30</span>% on every bottle. <a href="./login.html?next=checkout">Log in</a> to apply your discount.</p>
+      </section>
+    </form>
+
+    <aside class="checkout-summary" aria-labelledby="summaryTitle">
+      <h2 id="summaryTitle">Your order</h2>
+      <div class="checkout-lines" id="checkoutLines"></div>
+
+      <dl class="checkout-totals">
+        <div><dt>Subtotal</dt><dd id="summarySubtotal">$0.00</dd></div>
+        <div class="checkout-discount" id="summaryDiscountRow" hidden><dt>Member discount (<span data-discount-percent>30</span>%)</dt><dd id="summaryDiscount">−$0.00</dd></div>
+        <div><dt>Pickup</dt><dd>Free</dd></div>
+        <div class="checkout-grand-total"><dt>Total</dt><dd id="summaryTotal">$0.00</dd></div>
+      </dl>
+
+      <p class="checkout-error" id="checkoutError" role="alert" hidden></p>
+      <button class="primary-button" id="payButton" type="submit" form="checkoutForm">Pay securely with Square</button>
+      <small>You will be taken to Square to pay by card, Apple Pay or Google Pay. Final prices are confirmed by Square.</small>
+    </aside>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-bottom">
+    <span>© 2026 WineBank on View</span>
+    <span>Enjoy responsibly. 18+ only.</span>
+  </div>
+</footer>
+
+<script src="./JS/navigation.js"></script>
+<script type="module" src="./JS/member-nav.js"></script>
+<script type="module" src="./JS/checkout.js"></script>
+</body>
+</html>
