@@ -183,6 +183,62 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+const discountForm = document.getElementById("memberDiscountForm");
+const discountInput = document.getElementById("memberDiscountPercent");
+const discountStatus = document.getElementById("memberDiscountStatus");
+const saveDiscountButton = document.getElementById("saveMemberDiscount");
+let discountLoaded = false;
+
+async function loadMemberDiscount() {
+  showStatus(discountStatus, "Loading discount…");
+  const { data, error } = await supabase
+    .from("shop_settings")
+    .select("member_discount_percent, updated_at")
+    .eq("id", 1)
+    .maybeSingle();
+
+  if (error?.code === "PGRST205" || (!error && !data)) {
+    showStatus(discountStatus, "Run the \"Online shop settings\" section of supabase/setup.sql in Supabase to enable this setting.", "error");
+    return;
+  }
+  if (error) {
+    showStatus(discountStatus, authErrorMessage(error, "Unable to load the discount."), "error");
+    return;
+  }
+
+  discountInput.value = data.member_discount_percent;
+  discountInput.disabled = false;
+  saveDiscountButton.disabled = false;
+  showStatus(discountStatus, `Last updated ${new Date(data.updated_at).toLocaleString("en-AU")}.`);
+}
+
+async function saveMemberDiscount(event) {
+  event.preventDefault();
+  const percent = Number(discountInput.value);
+  if (discountInput.value.trim() === "" || !Number.isInteger(percent) || percent < 0 || percent > 100) {
+    showStatus(discountStatus, "Enter a whole number from 0 to 100.", "error");
+    discountInput.focus();
+    return;
+  }
+
+  saveDiscountButton.disabled = true;
+  showStatus(discountStatus, "Saving…");
+  const { data, error } = await supabase
+    .from("shop_settings")
+    .update({ member_discount_percent: percent })
+    .eq("id", 1)
+    .select("member_discount_percent");
+  saveDiscountButton.disabled = false;
+
+  if (error || !data?.length) {
+    showStatus(discountStatus, error ? authErrorMessage(error, "Unable to save the discount.") : "The discount was not saved. Check that your account is an admin.", "error");
+    return;
+  }
+  showStatus(discountStatus, percent
+    ? `Members now save ${percent}% at online checkout.`
+    : "Online member discount is turned off.", "success");
+}
+
 function renderWines() {
   if (!wines.length) {
     wineList.innerHTML = '<p class="admin-help">No Square items were found in the cellar categories.</p>';
@@ -283,7 +339,12 @@ if (!isSupabaseConfigured) {
   document.getElementById("openMembershipManager").addEventListener("click", () => {
     initMembershipAdmin();
     showWorkspace(membershipPanel);
+    if (!discountLoaded) {
+      discountLoaded = true;
+      loadMemberDiscount();
+    }
   });
+  discountForm.addEventListener("submit", saveMemberDiscount);
   document.getElementById("backFromMemberships").addEventListener("click", showOverview);
 
   document.getElementById("openCellarManager").addEventListener("click", async () => {

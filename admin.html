@@ -166,6 +166,21 @@
         </div>
       </div>
 
+      <form class="admin-discount" id="memberDiscountForm" novalidate>
+        <div>
+          <h3>Online member discount</h3>
+          <p class="admin-help">Applied at Cellar checkout for members with an active, unexpired membership. Set 0 to turn it off. In-store discounts are set in Square.</p>
+        </div>
+        <div class="admin-discount-controls">
+          <div class="admin-field">
+            <label for="memberDiscountPercent">Discount (%)</label>
+            <input id="memberDiscountPercent" type="number" min="0" max="100" step="1" inputmode="numeric" required disabled />
+          </div>
+          <button class="primary-button" id="saveMemberDiscount" type="submit" disabled>Save discount</button>
+        </div>
+        <div class="admin-status" id="memberDiscountStatus" aria-live="polite"></div>
+      </form>
+
       <div class="admin-membership-tools">
         <div class="admin-field">
           <label for="membershipSearch">Search members</label>

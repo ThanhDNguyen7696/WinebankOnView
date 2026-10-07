@@ -244,6 +244,46 @@
   line-height: 1.5;
 }
 
+.admin-discount {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 8px 24px;
+  margin-bottom: 30px;
+  padding: 22px 24px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+
+.admin-discount h3 {
+  margin: 0 0 6px;
+  color: var(--wine-dark);
+  font: 400 22px Georgia, serif;
+}
+
+.admin-discount .admin-help {
+  margin: 0;
+}
+
+.admin-discount-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.admin-discount-controls .admin-field {
+  width: 120px;
+  margin-bottom: 0;
+}
+
+.admin-discount-controls .primary-button {
+  white-space: nowrap;
+}
+
+.admin-discount .admin-status {
+  grid-column: 1 / -1;
+}
+
 .admin-membership-tools {
   display: grid;
   grid-template-columns: minmax(260px, 1fr) auto;
@@ -847,8 +887,14 @@ button:disabled {
   }
 
   .admin-membership-tools,
-  .admin-membership-item {
+  .admin-membership-item,
+  .admin-discount {
     grid-template-columns: 1fr;
+  }
+
+  .admin-discount-controls .admin-field {
+    flex: 1;
+    width: auto;
   }
 
   .admin-membership-controls {

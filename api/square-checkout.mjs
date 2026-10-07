@@ -1,9 +1,9 @@
 // Creates a Square payment link for the Cellar bag (pickup in store).
 // Prices always come from the Square catalogue, never from the browser, and the
-// 30% member discount is only added after the membership is checked in Supabase.
+// member discount (set by admins in Supabase shop_settings) is only added after
+// the membership is checked in Supabase.
 import { cellarGroupResolver, json, squareAccount, squareFetch } from "./_square.mjs";
 
-const MEMBER_DISCOUNT_PERCENT = "30";
 const MAX_LINES = 50;
 const MAX_QUANTITY = 99;
 
@@ -63,6 +63,22 @@ async function activeMember(request) {
   const today = new Date().toISOString().slice(0, 10);
   const active = membership?.status === "active" && (!membership.expiry_date || membership.expiry_date >= today);
   return active ? user : null;
+}
+
+// Reads the admin-controlled discount. Throws if it cannot be read so a member
+// is never charged a different price than the Checkout page showed.
+async function memberDiscountPercent() {
+  const { SUPABASE_URL: supabaseUrl, SUPABASE_ANON_KEY: anonKey } = process.env;
+  const url = new URL("/rest/v1/shop_settings", supabaseUrl);
+  url.searchParams.set("select", "member_discount_percent");
+  url.searchParams.set("id", "eq.1");
+  const response = await fetch(url, { headers: { apikey: anonKey, Authorization: `Bearer ${anonKey}` } });
+  const [settings] = response.ok ? await response.json() : [];
+  const percent = Number(settings?.member_discount_percent);
+  if (!Number.isInteger(percent) || percent < 0 || percent > 100) {
+    throw new Error("The member discount setting could not be read from Supabase.");
+  }
+  return percent;
 }
 
 async function locationId(account) {
@@ -128,6 +144,7 @@ export async function POST(request) {
     });
 
     const member = await activeMember(request);
+    const discountPercent = member ? await memberDiscountPercent() : 0;
     const origin = new URL(request.url).origin;
     const pickupNote = phone ? `Phone: ${phone}` : undefined;
 
@@ -139,8 +156,8 @@ export async function POST(request) {
         order: {
           location_id: await locationId(checkoutAccount),
           line_items: lineItems,
-          discounts: member
-            ? [{ uid: "member-discount", name: "Member discount", percentage: MEMBER_DISCOUNT_PERCENT, scope: "ORDER" }]
+          discounts: discountPercent
+            ? [{ uid: "member-discount", name: `Member discount (${discountPercent}%)`, percentage: String(discountPercent), scope: "ORDER" }]
             : undefined,
           fulfillments: [{
             type: "PICKUP",
@@ -161,7 +178,7 @@ export async function POST(request) {
       }
     });
 
-    return json({ url: link.url, memberDiscount: Boolean(member) });
+    return json({ url: link.url, memberDiscountPercent: discountPercent });
   } catch (error) {
     console.error("Unable to create the Square checkout:", error);
     return json({ error: "Checkout is temporarily unavailable. Please try again or call (03) 5444 4655." }, 502);

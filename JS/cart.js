@@ -3,8 +3,6 @@
 // loads; the server always re-prices the order from Square at checkout.
 const STORAGE_KEY = 'winebankCart';
 
-export const MEMBER_DISCOUNT = 0.3;
-
 export const fallbackArt = {
   magnums: 'linear-gradient(145deg,#2b0d12,#6f2835)',
   'red-bottle': 'linear-gradient(145deg,#2b0d12,#7b2633)',
@@ -61,11 +59,11 @@ export function refreshCart(cart, wines) {
   return { cart: refreshed, removed };
 }
 
-export function cartTotals(cart, isMember = false) {
+export function cartTotals(cart, discountPercent = 0) {
   const count = cart.reduce((sum, line) => sum + line.qty, 0);
   const subtotal = cart.reduce((sum, line) => sum + line.price * line.qty, 0);
   // Display only: the server re-checks the membership before Square applies the discount.
-  const discount = isMember ? Math.round(subtotal * MEMBER_DISCOUNT * 100) / 100 : 0;
+  const discount = Math.round(subtotal * discountPercent) / 100;
   return { count, subtotal, discount, total: subtotal - discount };
 }
 

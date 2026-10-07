@@ -125,6 +125,64 @@ values
   ('functions', true)
 on conflict (menu_key) do nothing;
 
+-- Online shop settings ----------------------------------------------------
+-- A single row read by the Checkout page and the /api/square-checkout function.
+
+create table if not exists public.shop_settings (
+  id smallint primary key default 1 check (id = 1),
+  member_discount_percent integer not null default 30
+    check (member_discount_percent between 0 and 100),
+  updated_at timestamptz not null default now()
+);
+
+alter table public.shop_settings enable row level security;
+
+grant select on public.shop_settings to anon, authenticated;
+grant update on public.shop_settings to authenticated;
+
+drop policy if exists "Public can read shop settings" on public.shop_settings;
+create policy "Public can read shop settings"
+on public.shop_settings for select
+to public
+using (true);
+
+drop policy if exists "Admins can update shop settings" on public.shop_settings;
+create policy "Admins can update shop settings"
+on public.shop_settings for update
+to authenticated
+using (
+  exists (
+    select 1 from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+)
+with check (
+  exists (
+    select 1 from public.admin_users
+    where admin_users.user_id = auth.uid()
+  )
+);
+
+create or replace function public.set_shop_settings_updated_at()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$;
+
+drop trigger if exists set_shop_settings_updated_at on public.shop_settings;
+create trigger set_shop_settings_updated_at
+before update on public.shop_settings
+for each row execute function public.set_shop_settings_updated_at();
+
+insert into public.shop_settings (id, member_discount_percent)
+values (1, 30)
+on conflict (id) do nothing;
+
 -- After creating an admin in Authentication > Users, replace the email below
 -- and run this statement separately:
 -- insert into public.admin_users (user_id)

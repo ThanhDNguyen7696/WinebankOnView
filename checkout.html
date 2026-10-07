@@ -70,7 +70,7 @@
 
       <section class="checkout-member" id="memberBox">
         <h2>Member pricing</h2>
-        <p id="memberMessage">WineBank members save 30% on every bottle. <a href="./login.html?next=checkout">Log in</a> to apply your discount.</p>
+        <p id="memberMessage">WineBank members save <span data-discount-percent>30</span>% on every bottle. <a href="./login.html?next=checkout">Log in</a> to apply your discount.</p>
       </section>
     </form>
 
@@ -80,7 +80,7 @@
 
       <dl class="checkout-totals">
         <div><dt>Subtotal</dt><dd id="summarySubtotal">$0.00</dd></div>
-        <div class="checkout-discount" id="summaryDiscountRow" hidden><dt>Member discount (30%)</dt><dd id="summaryDiscount">−$0.00</dd></div>
+        <div class="checkout-discount" id="summaryDiscountRow" hidden><dt>Member discount (<span data-discount-percent>30</span>%)</dt><dd id="summaryDiscount">−$0.00</dd></div>
         <div><dt>Pickup</dt><dd>Free</dd></div>
         <div class="checkout-grand-total"><dt>Total</dt><dd id="summaryTotal">$0.00</dd></div>
       </dl>

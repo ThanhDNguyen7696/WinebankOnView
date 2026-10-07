@@ -8,6 +8,7 @@ const validEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 let cart = readCart();
 let session = null;
 let isMember = false;
+let discountPercent = 30;
 
 function render() {
   $('#checkoutEmpty').hidden = cart.length > 0;
@@ -24,7 +25,7 @@ function render() {
     <strong>${money(line.price * line.qty)}</strong>
   </div>`).join('');
 
-  const totals = cartTotals(cart, isMember);
+  const totals = cartTotals(cart, isMember ? discountPercent : 0);
   $('#summarySubtotal').textContent = money(totals.subtotal);
   $('#summaryDiscountRow').hidden = !totals.discount;
   $('#summaryDiscount').textContent = `−${money(totals.discount)}`;
@@ -57,8 +58,22 @@ async function refreshFromSquare() {
   }
 }
 
+// The discount rate is set by admins in Supabase (shop_settings).
+async function loadDiscountPercent() {
+  const { data, error } = await supabase
+    .from('shop_settings')
+    .select('member_discount_percent')
+    .eq('id', 1)
+    .maybeSingle();
+  if (error || !data) return;
+  discountPercent = data.member_discount_percent;
+  document.querySelectorAll('[data-discount-percent]').forEach((element) => { element.textContent = discountPercent; });
+  if (!discountPercent) $('#memberMessage').textContent = 'Member pricing is not available for online orders at the moment.';
+}
+
 async function loadMember() {
   if (!isSupabaseConfigured) return;
+  await loadDiscountPercent();
   ({ data: { session } } = await supabase.auth.getSession());
   if (!session) return;
 
@@ -75,10 +90,12 @@ async function loadMember() {
   const today = new Date().toISOString().slice(0, 10);
   isMember = data?.status === 'active' && (!data.expiry_date || data.expiry_date >= today);
 
-  $('#memberMessage').textContent = isMember
-    ? 'Your 30% member discount has been applied.'
-    : 'Your account does not have an active membership, so standard prices apply. Contact WineBank staff to join or renew.';
-  $('#memberBox').classList.toggle('is-member', isMember);
+  $('#memberMessage').textContent = !isMember
+    ? 'Your account does not have an active membership, so standard prices apply. Contact WineBank staff to join or renew.'
+    : discountPercent
+      ? `Your ${discountPercent}% member discount has been applied.`
+      : 'Member pricing is not available for online orders at the moment.';
+  $('#memberBox').classList.toggle('is-member', isMember && discountPercent > 0);
   render();
 }
 
