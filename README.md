@@ -71,7 +71,7 @@ The Private occasions form posts to the Vercel Function at `/api/function-enquir
 
 - `RESEND_API_KEY` — a Resend API key with permission to send email.
 - `RESEND_FROM` — a verified sender, for example `WineBank Website <functions@your-verified-domain.com>`. For initial testing, `WineBank Website <onboarding@resend.dev>` may be used subject to Resend's testing restrictions.
-- `FUNCTION_ENQUIRY_TO` — the recipient address, currently `lucaslewis741@gmail.com`.
+- `FUNCTION_ENQUIRY_TO` — the recipient address, currently `admin@winebankonview.com`.
 
 Never place `RESEND_API_KEY` in browser JavaScript or commit it to Git.
 

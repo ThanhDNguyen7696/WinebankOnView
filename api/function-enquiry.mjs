@@ -1,4 +1,4 @@
-const RECIPIENT = process.env.FUNCTION_ENQUIRY_TO || "lucaslewis741@gmail.com";
+const RECIPIENT = process.env.FUNCTION_ENQUIRY_TO || "admin@winebankonview.com";
 const SENDER = process.env.RESEND_FROM || "WineBank Website <onboarding@resend.dev>";
 
 const json = (body, status = 200) => new Response(JSON.stringify(body), {
